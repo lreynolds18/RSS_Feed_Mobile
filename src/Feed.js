@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Button, Text, View } from 'react-native';
+import { AsyncStorage, StyleSheet, Button, Text, View } from 'react-native';
 
 export default class Feed extends Component {
   /*
@@ -18,13 +18,16 @@ export default class Feed extends Component {
    */
   constructor(props) {
     super(props);
-    this.state ={ isLoading: true}
+    this.state = { isLoading: true };
   }
 
   /*
    * componentDidMount - 
    */
   componentDidMount() {
+    // this.setState({ 'feeds': value }));
+
+    /*
     var request = new XMLHttpRequest();
     request.onreadystatechange = (e) => {
       if (request.readyState !== 4) {
@@ -33,14 +36,21 @@ export default class Feed extends Component {
 
       if (request.status === 200) {
         // console.log('success', request.responseText);
-        console.log('success');
+        console.log(request.responseText);
       } else {
         console.warn('error: ' + request.status);
       }
     };
 
-    request.open('GET', 'https://reddit.com/r/datascience.rss');
-    request.send();
+    AsyncStorage
+      .getItem('feeds')
+      .then((value) => {
+        value.forEach((site) => {
+          request.open('GET', site);
+          request.send();
+        });
+      });
+    */
     // console.log(request);
   }
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import SetFeed from './SetFeed';
+import Settings from './Settings';
 
 import renderer from 'react-test-renderer';
 
 it('renders without crashing', () => {
-  const rendered = renderer.create(<SetFeed />).toJSON();
+  const rendered = renderer.create(<Settings />).toJSON();
   expect(rendered).toBeTruthy();
 });
