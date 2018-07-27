@@ -1,4 +1,5 @@
 - Use asyncstorage to store rss websites
 - Use fetch to get api data
-- Make nice / easy to read in dark
+- Make nice / easy to read in dark (native base)
+- Make switch transitions faster
  

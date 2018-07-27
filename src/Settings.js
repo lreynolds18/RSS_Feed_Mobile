@@ -19,12 +19,11 @@ export default class SetFeed extends Component {
   constructor(props) {
     super(props);
     this.state = { feeds: [{on: true, site: "https://reddit.com/r/datascience.rss"}, {on: true, site: "https://reddit.com/r/cscareerquestions.rss"}, {on: false, site: "https://reddit.com/r/machinelearning.rss"}], new_site: "" };
-
-    // this.toggleRSS = this.toggleRSS.bind(this);
   }
 
   /*
    * componentDidMount - call asyncstorage to get current feeds value
+   * only calling asyncstorage on mount and update (go back)
    */
   componentDidMount() {
     // AsyncStorage.getItem('feeds')
@@ -32,14 +31,19 @@ export default class SetFeed extends Component {
   }
 
   /*
-   * setRSSFeeds - set RSS feeds in AsyncStorage
-   * gets site from textinput, checks if valid, then pushs to state/async
+   * addRSSFeed - add RSS Feed
+   * gets RSS Feed site from textinput, checks if valid, then pushs to state
    */ 
-  setRSSFeeds() {
+  addRSSFeed() {
     feeds = this.state.feeds;
-    // feeds.push();
-    // this.setState( feeds:  
-    // AsyncStorage.setItem('feeds', this.state.feeds);
+    // TODO: verify that new_site is a valid rss feed
+    // TODO: push error message on invalid rss feed
+    feeds.push({on: true, site: this.state.new_site});
+    // create a deep copy because flatlist is a pure component
+    // and doesn't update when feeds isn't reinitialized #WHY?
+    // TODO: Refactor this
+    feeds = JSON.parse(JSON.stringify(feeds));
+    this.setState({ feeds: feeds, new_site: "" });
   }
 
   /*
@@ -83,6 +87,7 @@ export default class SetFeed extends Component {
           renderItem={({item, index}) => (
             <View>
               <Text style={styles.textinput}>{ item.site }</Text>
+              {/* TODO: style and make switch faster */}
               <Switch onValueChange={ () => this.toggleRSS(index) } value={ item.on } />
               <Button onPress={ () => this.deleteRSS(index) } title="Delete" />
             </View>
@@ -91,12 +96,13 @@ export default class SetFeed extends Component {
 
         <TextInput
           style={styles.textinput}
-           onChangeText={(new_site) => this.setState({new_site})}
+          onChangeText={(new_site) => this.setState({new_site})}
+          value={this.state.new_site}
           placeholder="Type here to add new RSS feeds!"
         />
     
         <Button
-          onPress={ () => this.setRSSFeeds() }
+          onPress={ () => this.addRSSFeed() }
           title="Add RSS Feed"
           color="#3e3f40"
           accessibilityLabel="Press button to add website RSS feed"
