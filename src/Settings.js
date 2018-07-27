@@ -1,7 +1,20 @@
 import React, { Component } from 'react';
-import { AsyncStorage, Button, FlatList, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { AsyncStorage, StyleSheet } from 'react-native';
+// import { AsyncStorage, Button, FlatList, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { 
+  Container, 
+  Content, 
+  Button, 
+  Item,
+  Icon,
+  List, 
+  ListItem, 
+  Text, 
+  Input, 
+  Switch 
+} from 'native-base';
 
-export default class SetFeed extends Component {
+export default class Settings extends Component {
   /*
    * navigationOptions - set style/text for navigation bar
    */
@@ -25,7 +38,7 @@ export default class SetFeed extends Component {
    * componentDidMount - call asyncstorage to get current feeds value
    * only calling asyncstorage on mount and update (go back)
    */
-  componentDidMount() {
+  async componentDidMount() {
     // AsyncStorage.getItem('feeds')
     //  .then((value) => this.setState({ 'feeds': value }));
   }
@@ -67,10 +80,12 @@ export default class SetFeed extends Component {
   toggleRSS(index) {
     let feeds = this.state.feeds;
     feeds[index].on = !feeds[index].on;
+
     // create a deep copy because flatlist is a pure component
     // and doesn't update when feeds isn't reinitialized #WHY?
     // TODO: Refactor this
     feeds = JSON.parse(JSON.stringify(feeds));
+
     this.setState({ feeds: feeds });
   }
 
@@ -79,42 +94,55 @@ export default class SetFeed extends Component {
    */
   render() {
     return (
-      <View style={styles.view}>
+      <Container>
+      {/* <Container style={styles.view}> */}
+        <Content>
 
-        <FlatList
+        <List
           data={this.state.feeds}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({item, index}) => (
-            <View>
-              <Text style={styles.textinput}>{ item.site }</Text>
+            <ListItem>
+              <Text>{ item.site }</Text>
+              {/* <Text style={styles.textinput}>{ item.site }</Text> */}
               {/* TODO: style and make switch faster */}
-              <Switch onValueChange={ () => this.toggleRSS(index) } value={ item.on } />
-              <Button onPress={ () => this.deleteRSS(index) } title="Delete" />
-            </View>
+              {/* <Switch onValueChange={ () => this.toggleRSS(index) } value={ item.on } /> */}
+
+              <Button
+                full danger
+                onPress={ () => this.deleteRSS(index) }
+              >
+                <Icon active name="trash" />
+              </Button>
+            </ListItem>
           )}
         />
 
-        <TextInput
-          style={styles.textinput}
-          onChangeText={(new_site) => this.setState({new_site})}
-          value={this.state.new_site}
-          placeholder="Type here to add new RSS feeds!"
-        />
+        <Item success>
+          <Input 
+            onChangeText={(new_site) => this.setState({new_site})}
+            value={this.state.new_site}
+            placeholder="Type here to add new RSS feeds!"
+          />
+          {/* <Icon name='checkmark-circle' /> */}
+          <Button success
+            onPress={ () => this.addRSSFeed() }
+            accessibilityLabel="Press button to add website RSS feed"
+          >
+            <Icon type='FontAwesome' name='plus' />
+          </Button>
+        </Item>
     
-        <Button
-          onPress={ () => this.addRSSFeed() }
-          title="Add RSS Feed"
-          color="#3e3f40"
-          accessibilityLabel="Press button to add website RSS feed"
-        />
+          <Button rounded
+            onPress={() => this.props.navigation.navigate('Feed')}
+            style = {{ backgroundColor: '#3e3f40' }}
+            accessibilityLabel="Press button to update settings and navigate back to main feed."
+          >
+            <Text>Update!</Text>
+          </Button>
 
-        <Button
-          onPress={() => this.props.navigation.navigate('Feed')}
-          title="Update"
-          color="#3e3f40"
-          accessibilityLabel="Press button to update settings and navigate back to main feed."
-        />
-      </View>
+        </Content>
+      </Container>
     );
   }
 }
