@@ -5,6 +5,7 @@ import FeedScreen from './src/Feed';
 import SettingsScreen from './src/Settings';
 
 
+// Create navigator routes
 const RootStack = createStackNavigator(
   {
     Feed: FeedScreen,
