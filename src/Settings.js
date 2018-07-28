@@ -1,17 +1,26 @@
 import React, { Component } from 'react';
-import { AsyncStorage, StyleSheet } from 'react-native';
-// import { AsyncStorage, Button, FlatList, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+
+import {
+  AsyncStorage, 
+  FlatList,
+  StyleSheet,
+  TouchableOpacity 
+} from 'react-native';
+
 import { 
+  Button, 
   Container, 
   Content, 
-  Button, 
-  Item,
   Icon,
-  List, 
-  ListItem, 
-  Text, 
   Input, 
-  Switch 
+  Item,
+  ListItem, 
+  Left,
+  Right,
+  SwipeRow,
+  Switch,
+  Text,
+  View
 } from 'native-base';
 
 export default class Settings extends Component {
@@ -48,14 +57,10 @@ export default class Settings extends Component {
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
    */ 
   addRSSFeed() {
-    feeds = this.state.feeds;
+    let feeds = [...this.state.feeds];
     // TODO: verify that new_site is a valid rss feed
     // TODO: push error message on invalid rss feed
     feeds.push({on: true, site: this.state.new_site});
-    // create a deep copy because flatlist is a pure component
-    // and doesn't update when feeds isn't reinitialized #WHY?
-    // TODO: Refactor this
-    feeds = JSON.parse(JSON.stringify(feeds));
     this.setState({ feeds: feeds, new_site: "" });
   }
 
@@ -64,7 +69,7 @@ export default class Settings extends Component {
    * update async every time?
    */
   deleteRSS(index) {
-    let feeds = this.state.feeds;
+    let feeds = [...this.state.feeds];
 
     // delete element from array
     // if only one element left then initializes empty array
@@ -78,14 +83,8 @@ export default class Settings extends Component {
    * toggleRSS - toggles if we look for RSS feed by switch
    */
   toggleRSS(index) {
-    let feeds = this.state.feeds;
+    let feeds = [...this.state.feeds];
     feeds[index].on = !feeds[index].on;
-
-    // create a deep copy because flatlist is a pure component
-    // and doesn't update when feeds isn't reinitialized #WHY?
-    // TODO: Refactor this
-    feeds = JSON.parse(JSON.stringify(feeds));
-
     this.setState({ feeds: feeds });
   }
 
@@ -96,33 +95,45 @@ export default class Settings extends Component {
     return (
       <Container>
       {/* <Container style={styles.view}> */}
-        <Content>
+        <Content style={styles.container}>
 
-        <List
+        {/* Generate List of RSS Feeds */}
+        <FlatList
+          style={styles.listContainer}
           data={this.state.feeds}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({item, index}) => (
-            <ListItem>
-              <Text>{ item.site }</Text>
-              {/* <Text style={styles.textinput}>{ item.site }</Text> */}
-              {/* TODO: style and make switch faster */}
-              {/* <Switch onValueChange={ () => this.toggleRSS(index) } value={ item.on } /> */}
-
-              <Button
-                full danger
-                onPress={ () => this.deleteRSS(index) }
-              >
-                <Icon active name="trash" />
-              </Button>
-            </ListItem>
-          )}
+          renderItem={({ item, index }) => 
+            <SwipeRow
+              disableRightSwipe={true}
+              rightOpenValue={-60}
+              body={
+                <View>
+                <TouchableOpacity onPress={() => this.toggleRSS(index)}>
+                    <Text 
+                      style={{
+                        textDecorationLine: (item.on ? 'none' : 'line-through')
+                      }}
+                    >
+                      { item.site }
+                    </Text>
+                </TouchableOpacity> 
+                </View>
+              }
+              right={
+                <Button full danger onPress={ () => this.deleteRSS(index) }>
+                  <Icon active name="trash" />
+                </Button>
+              }
+            />
+          }
         />
 
-        <Item success>
+        <View style={styles.controlContainer}>
+        <Item>
           <Input 
             onChangeText={(new_site) => this.setState({new_site})}
             value={this.state.new_site}
-            placeholder="Type here to add new RSS feeds!"
+            placeholder="Type here to add new RSS feeds"
           />
           {/* <Icon name='checkmark-circle' /> */}
           <Button success
@@ -133,6 +144,7 @@ export default class Settings extends Component {
           </Button>
         </Item>
     
+        <Item>
           <Button rounded
             onPress={() => this.props.navigation.navigate('Feed')}
             style = {{ backgroundColor: '#3e3f40' }}
@@ -140,6 +152,8 @@ export default class Settings extends Component {
           >
             <Text>Update!</Text>
           </Button>
+        </Item>
+        </View>
 
         </Content>
       </Container>
@@ -148,6 +162,17 @@ export default class Settings extends Component {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+  },
+  listContainer: {
+    flex: 3,
+  },
+  controlContainer: {
+    flex: 2,
+    alignItems: 'center',
+  },
   view: {
     flex: 1,
     backgroundColor: '#000',
