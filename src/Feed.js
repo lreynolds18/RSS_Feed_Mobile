@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { AsyncStorage, StyleSheet, Button, Text, View } from 'react-native';
 
+import Colors from './Colors';
+
 export default class Feed extends Component {
   /*
    * navigationOptions - set style/text for navigation bar
@@ -68,13 +70,13 @@ export default class Feed extends Component {
    */
   render() {
     return (
-      <View style={styles.view}>
-        <Text style={styles.text}>Open up App.js to start working on your app!</Text>
+      <View style={[styles.view, {backgroundColor: Colors.backgroundColor}]}>
+        <Text style={{color: Colors.primaryTextColor}}>Open up App.js to start working on your app!</Text>
 
         <Button
           onPress={() => this.props.navigation.navigate('Settings')}
           title="Change Settings"
-          color="#3e3f40"
+          color={ Colors.primaryDarkColor }
           accessibilityLabel="Press button to change settings."
         />
       </View>
@@ -85,11 +87,7 @@ export default class Feed extends Component {
 const styles = StyleSheet.create({
   view: {
     flex: 1,
-    backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text: {
-    color: '#fff'
-  }
 });

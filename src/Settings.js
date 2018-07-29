@@ -23,6 +23,8 @@ import {
   View
 } from 'native-base';
 
+import Colors from './Colors';
+
 export default class Settings extends Component {
   /*
    * navigationOptions - set style/text for navigation bar
@@ -89,28 +91,24 @@ export default class Settings extends Component {
   }
 
   /*
-   * render - render jsx
+   * renderActivateRSSFeed - builds JSX for the Activate RSS Feed List
+   * body is each list feed and each feed can be turned on/off
+   * right gives option to swipe the item to open up a option to delete
    */
-  render() {
+  renderActivateRSSFeed(item, index) {
     return (
-      <Container>
-      {/* <Container style={styles.view}> */}
-        <Content style={styles.container}>
-
-        {/* Generate List of RSS Feeds */}
-        <FlatList
-          style={styles.listContainer}
-          data={this.state.feeds}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => 
             <SwipeRow
+              style={{
+                backgroundColor: Colors.backgroundColor
+              }}
               disableRightSwipe={true}
-              rightOpenValue={-60}
+              rightOpenValue={-51}
               body={
                 <View>
                 <TouchableOpacity onPress={() => this.toggleRSS(index)}>
                     <Text 
                       style={{
+                        color: Colors.primaryTextColor,
                         textDecorationLine: (item.on ? 'none' : 'line-through')
                       }}
                     >
@@ -125,18 +123,24 @@ export default class Settings extends Component {
                 </Button>
               }
             />
-          }
-        />
+    );
+  }
 
-        <View style={styles.controlContainer}>
-        <Item>
+  /*
+   * renderControlContainer - builds JSX for the Control Container 
+   * 
+   */
+  renderControlContainer() {
+    return (
+      <View style={styles.controlContainer}>
+        <Item style={{borderColor: 'transparent'}}>
           <Input 
+            style={{ color: Colors.primaryTextColor }}
             onChangeText={(new_site) => this.setState({new_site})}
             value={this.state.new_site}
             placeholder="Type here to add new RSS feeds"
           />
-          {/* <Icon name='checkmark-circle' /> */}
-          <Button success
+          <Button success full
             onPress={ () => this.addRSSFeed() }
             accessibilityLabel="Press button to add website RSS feed"
           >
@@ -144,7 +148,7 @@ export default class Settings extends Component {
           </Button>
         </Item>
     
-        <Item>
+        <Item style={{borderColor: 'transparent'}}>
           <Button rounded
             onPress={() => this.props.navigation.navigate('Feed')}
             style = {{ backgroundColor: '#3e3f40' }}
@@ -154,7 +158,30 @@ export default class Settings extends Component {
           </Button>
         </Item>
         </View>
+    );
+  }
 
+  /*
+   * render - render jsx
+   */
+  render() {
+    return (
+      <Container>
+      {/* <Container style={styles.view}> */}
+        <Content style={styles.container}>
+
+        {/* Generate List of RSS Feeds */}
+        <FlatList
+          style={styles.listContainer}
+          data={this.state.feeds}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => 
+            this.renderActivateRSSFeed(item, index)
+          }
+        />
+
+          {/* Generate control input/button to add feed, button to update */}
+          { this.renderControlContainer() } 
         </Content>
       </Container>
     );
@@ -165,9 +192,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    backgroundColor: Colors.backgroundColor
   },
   listContainer: {
     flex: 3,
+    backgroundColor: Colors.backgroundColor,
   },
   controlContainer: {
     flex: 2,
