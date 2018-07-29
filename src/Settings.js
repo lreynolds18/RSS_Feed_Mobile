@@ -20,6 +20,7 @@ import {
   SwipeRow,
   Switch,
   Text,
+  Toast,
   View
 } from 'native-base';
 
@@ -59,11 +60,35 @@ export default class Settings extends Component {
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
    */ 
   addRSSFeed() {
-    let feeds = [...this.state.feeds];
-    // TODO: verify that new_site is a valid rss feed
-    // TODO: push error message on invalid rss feed
-    feeds.push({on: true, site: this.state.new_site});
-    this.setState({ feeds: feeds, new_site: "" });
+    // TODO: push success/error message w/ toast
+    // figure out how to call toast
+
+    let re = new RegExp('[Hh]ttps?://.*\.(json)|(rss)');
+    if (this.state.new_site === "" || !re.test(this.state.new_site)) {
+      /*
+      Toast.show({
+        text: 'Please include valid RSS site',
+        buttonText: 'Okay',
+        2500,
+        position: 'bottom',
+        textStyle: { textAlign: 'center' },
+      });
+      */
+    } else {
+      let feeds = [...this.state.feeds];
+      feeds.push({on: true, site: this.state.new_site.toLowerCase()});
+      this.setState({ feeds: feeds, new_site: "" });
+      /*
+      Toast.show({
+        text: 'Success!',
+        buttonText: 'Okay',
+        2500,
+        type: 'success',
+        position: 'bottom',
+        textStyle: { textAlign: 'center' },
+      });
+      */
+    }
   }
 
   /*
@@ -167,9 +192,9 @@ export default class Settings extends Component {
   render() {
     return (
       <Container>
-      {/* <Container style={styles.view}> */}
         <Content style={styles.container}>
 
+        {/* TODO: make list take 80% of screen and buttons take 20% */}
         {/* Generate List of RSS Feeds */}
         <FlatList
           style={styles.listContainer}
