@@ -57,7 +57,7 @@ export default class Settings extends Component {
       .then((value) => {
         console.log(value);
         if (value) {
-          this.setState({ 'feeds': value })
+          this.setState({ 'feeds': JSON.parse(value) })
         }
       });
     } catch (e) {
@@ -84,29 +84,25 @@ export default class Settings extends Component {
 
     let re = new RegExp('[Hh]ttps?://.*\.(json)|(rss)');
     if (this.state.new_site === "" || !re.test(this.state.new_site)) {
-      /*
       Toast.show({
         text: 'Please include valid RSS site',
         buttonText: 'Okay',
-        2500,
+        duration: 2500,
         position: 'bottom',
         textStyle: { textAlign: 'center' },
       });
-      */
     } else {
       let feeds = [...this.state.feeds];
       feeds.push({on: true, site: this.state.new_site.toLowerCase()});
       this.setState({ feeds: feeds, new_site: "" });
-      /*
       Toast.show({
         text: 'Success!',
         buttonText: 'Okay',
-        2500,
+        duration: 2500,
         type: 'success',
         position: 'bottom',
         textStyle: { textAlign: 'center' },
       });
-      */
     }
   }
 
@@ -233,6 +229,8 @@ export default class Settings extends Component {
           {/* Generate control input/button to add feed, button to update */}
           { this.renderControlContainer() } 
         </Content>
+
+        <Toast />
       </Container>
     );
   }

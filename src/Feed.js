@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { AsyncStorage, FlatList, StyleSheet } from 'react-native';
-
 import {
   Container,
   Content,
@@ -9,6 +8,7 @@ import {
   Text,
   View,
 } from 'native-base';
+import { parseString } from 'react-native-xml2js';
 
 import Colors from './Colors';
 
@@ -29,16 +29,35 @@ export default class Feed extends Component {
    */
   constructor(props) {
     super(props);
-    this.state = { isLoading: true, RSS: []};
+    this.state = { isLoading: true, RSS: [], Feeds: []};
   }
 
-  componentDidMount() {
+  /*
+   * componentWillMount - get feeds from asyncstorage
+   * then call makeXMLRequest or makeJSONRequest depending on api call
+   * TODO: should this be in componentWillMount or componentDidMount or something else
+   * TODO: should this have async in front of it
+   * TODO: can we handle async calls better?
+   * TODO: handle json calls
+   */
+  componentWillMount() {
+    // get sites to pull RSS Feed from
     try {
     AsyncStorage.getItem('feeds')
       .then((value) => {
-        console.warn(value);
-        if (value) {
-          this.setState({ 'RSS': JSON.parse(value) })
+        if (value !== null) {
+          value = JSON.parse(value);
+          this.setState({ 'RSS': value });
+          
+          value.forEach((rss) => {
+            if (rss.on) {
+              try {
+                this.makeXMLRequest(rss.site);
+              } catch (e) {
+                console.log("ERROR", rss.site, e);
+              }
+            }
+          }); 
         }
       });
     } catch (e) {
@@ -47,14 +66,12 @@ export default class Feed extends Component {
   }
 
   /*
-   * componentDidMount - 
+   * makeRSSRequest - get xml from RSS request
+   * @site - site to get rss feed data from
    */
-  componentWillMount() {
-    console.log('in will mnt');
-    // this.setState({ 'feeds': value }));
-
-    /*
+  makeXMLRequest(site) {
     var request = new XMLHttpRequest();
+
     request.onreadystatechange = (e) => {
       if (request.readyState !== 4) {
         return;
@@ -62,22 +79,17 @@ export default class Feed extends Component {
 
       if (request.status === 200) {
         // console.log('success', request.responseText);
-        console.log(request.responseText);
+        parseString(request.response, (err, result) => {
+          let feeds = [...this.state.feeds, ...result.feeds.entry];
+          this.setState({ feeds: feeds });
+        });
       } else {
         console.warn('error: ' + request.status);
       }
     };
 
-    AsyncStorage
-      .getItem('feeds')
-      .then((value) => {
-        value.forEach((site) => {
-          request.open('GET', site);
-          request.send();
-        });
-      });
-    */
-    // console.log(request);
+    request.open('GET', site);
+    request.send();
   }
 
   /*
