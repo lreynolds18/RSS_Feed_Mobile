@@ -51,8 +51,27 @@ export default class Settings extends Component {
    * only calling asyncstorage on mount and update (go back)
    */
   async componentDidMount() {
-    // AsyncStorage.getItem('feeds')
-    //  .then((value) => this.setState({ 'feeds': value }));
+    console.log("in will mnt");
+    try {
+    AsyncStorage.getItem('feeds')
+      .then((value) => {
+        console.log(value);
+        if (value) {
+          this.setState({ 'feeds': value })
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async setRSS() {
+    try {
+      AsyncStorage.setItem('feeds', JSON.stringify(this.state.feeds));
+    } catch (e) {
+      console.log(e);
+    }
+    this.props.navigation.navigate('Feed');
   }
 
   /*
@@ -161,6 +180,7 @@ export default class Settings extends Component {
         <Item style={{borderColor: 'transparent'}}>
           <Input 
             style={{ color: Colors.primaryTextColor }}
+            placeholderTextColor={ Colors.primaryTextColor }
             onChangeText={(new_site) => this.setState({new_site})}
             value={this.state.new_site}
             placeholder="Type here to add new RSS feeds"
@@ -175,7 +195,7 @@ export default class Settings extends Component {
     
         <Item style={{borderColor: 'transparent'}}>
           <Button rounded
-            onPress={() => this.props.navigation.navigate('Feed')}
+            onPress={() => this.setRSS()}
             style = {{ backgroundColor: '#3e3f40' }}
             accessibilityLabel="Press button to update settings and navigate back to main feed."
           >
@@ -192,7 +212,12 @@ export default class Settings extends Component {
   render() {
     return (
       <Container>
-        <Content style={styles.container}>
+        <Content 
+          style={styles.container}
+          contentContainerStyle={{
+            justifyContent:'center',
+          }}
+        >
 
         {/* TODO: make list take 80% of screen and buttons take 20% */}
         {/* Generate List of RSS Feeds */}
@@ -220,20 +245,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundColor
   },
   listContainer: {
-    flex: 3,
+    flex: 0.8,
     backgroundColor: Colors.backgroundColor,
   },
   controlContainer: {
-    flex: 2,
+    flex: 0.2,
     alignItems: 'center',
   },
-  view: {
-    flex: 1,
-    backgroundColor: '#000',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textinput: {
-    color: '#fff',
-  }
 });

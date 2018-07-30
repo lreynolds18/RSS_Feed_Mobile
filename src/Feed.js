@@ -29,13 +29,28 @@ export default class Feed extends Component {
    */
   constructor(props) {
     super(props);
-    this.state = { isLoading: true, RSS: ["hello", "world"] };
+    this.state = { isLoading: true, RSS: []};
+  }
+
+  componentDidMount() {
+    try {
+    AsyncStorage.getItem('feeds')
+      .then((value) => {
+        console.warn(value);
+        if (value) {
+          this.setState({ 'RSS': JSON.parse(value) })
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   /*
    * componentDidMount - 
    */
-  componentDidMount() {
+  componentWillMount() {
+    console.log('in will mnt');
     // this.setState({ 'feeds': value }));
 
     /*
@@ -68,9 +83,9 @@ export default class Feed extends Component {
   /*
    * renderRSSFeed - build each view for every link in rss
    */
-  renderRSSFeed(link) {
+  renderRSSFeed(item, index) {
     return (
-        <Text style={{color: Colors.primaryTextColor}}>Hello There</Text>
+        <Text style={{color: Colors.primaryTextColor}}>{ item.site }</Text>
     );
   }
 
@@ -101,14 +116,14 @@ export default class Feed extends Component {
         </Content>
 
         <Fab
-            active={false}
-            containerStyle={{ }}
-            direction="up"
-            style={{ flex: 1, backgroundColor: Colors.primaryDarkColor }}
-            position="bottomRight"
-            onPress={() => this.props.navigation.navigate('Settings')}
-            accessibilityLabel="Press button to change settings.">
-            <Icon name="cog" />
+          active={false}
+          containerStyle={{ }}
+          direction="up"
+          style={{ flex: 1, backgroundColor: Colors.primaryDarkColor }}
+          position="bottomRight"
+          onPress={() => this.props.navigation.navigate('Settings')}
+          accessibilityLabel="Press button to change settings.">
+          <Icon name="cog" />
         </Fab>
       </Container>
     );
