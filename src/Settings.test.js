@@ -1,9 +1,8 @@
-import React from 'react';
-import Settings from './Settings';
+import React from "react";
+import renderer from "react-test-renderer";
+import Settings from "./Settings";
 
-import renderer from 'react-test-renderer';
-
-it('renders without crashing', () => {
-  const rendered = renderer.create(<Settings />).toJSON();
-  expect(rendered).toBeTruthy();
+it("renders without crashing", () => {
+    const rendered = renderer.create(<Settings />).toJSON();
+    expect(rendered).toBeTruthy();
 });

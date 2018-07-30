@@ -1,7 +1,7 @@
 export default {
-  primaryDarkColor: '#3e3f40',
+    primaryDarkColor: "#3e3f40",
 
-  primaryTextColor: '#ffffff',
+    primaryTextColor: "#ffffff",
 
-  backgroundColor: '#000000',
-}
+    backgroundColor: "#000000"
+};

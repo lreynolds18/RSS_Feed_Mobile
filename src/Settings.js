@@ -1,49 +1,57 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 import {
-  AsyncStorage, 
-  FlatList,
-  StyleSheet,
-  TouchableOpacity 
-} from 'react-native';
+    AsyncStorage, 
+    FlatList,
+    StyleSheet,
+    TouchableOpacity 
+} from "react-native";
 
 import { 
-  Button, 
-  Container, 
-  Content, 
-  Icon,
-  Input, 
-  Item,
-  ListItem, 
-  Left,
-  Right,
-  SwipeRow,
-  Switch,
-  Text,
-  Toast,
-  View
-} from 'native-base';
+    Button, 
+    Container, 
+    Content, 
+    Icon,
+    Input, 
+    Item,
+    //    ListItem, 
+    //    Left,
+    //    Right,
+    SwipeRow,
+    //    Switch,
+    Text,
+    Toast,
+    View
+} from "native-base";
 
-import Colors from './Colors';
+import Colors from "./Colors";
 
 export default class Settings extends Component {
   /*
    * navigationOptions - set style/text for navigation bar
+   * TODO: have Settings make button in header call setRSS
    */
   static navigationOptions = ({ navigation, navigationOptions }) => {
-    return {
-      title: 'Settings',
-      headerStyle: { backgroundColor: navigationOptions.headerTintColor },
-      headerTintColor: navigationOptions.headerStyle.backgroundColor,
-    };
+      return {
+          title: "Settings",
+          headerStyle: { backgroundColor: navigationOptions.headerTintColor },
+          headerTintColor: navigationOptions.headerStyle.backgroundColor,
+          /* TODO: make work
+           * auto generated back button needs to trigger setRSS to save settings
+
+          header: ({ goBack }) => ({
+            left: <Icon name={'chevron-left'} onPress={() => {this.setRSS()}} />,
+          }),
+          */
+      };
   };
 
   /*
    * constructor - 
    */
   constructor(props) {
-    super(props);
-    this.state = { feeds: [{on: true, site: "https://reddit.com/r/datascience.rss"}, {on: true, site: "https://reddit.com/r/cscareerquestions.rss"}, {on: false, site: "https://reddit.com/r/machinelearning.rss"}], new_site: "" };
+      super(props);
+      this.state = { feeds: [], new_site: "" };
   }
 
   /*
@@ -51,27 +59,26 @@ export default class Settings extends Component {
    * only calling asyncstorage on mount and update (go back)
    */
   async componentDidMount() {
-    console.log("in will mnt");
-    try {
-    AsyncStorage.getItem('feeds')
-      .then((value) => {
-        console.log(value);
-        if (value) {
-          this.setState({ 'feeds': JSON.parse(value) })
-        }
-      });
-    } catch (e) {
-      console.log(e);
-    }
+      try {
+          AsyncStorage.getItem("feeds")
+              .then((value) => {
+                  console.log(value);
+                  if (value) {
+                      this.setState({ "feeds": JSON.parse(value) });
+                  }
+              });
+      } catch (e) {
+          console.log(e);
+      }
   }
 
   async setRSS() {
-    try {
-      AsyncStorage.setItem('feeds', JSON.stringify(this.state.feeds));
-    } catch (e) {
-      console.log(e);
-    }
-    this.props.navigation.navigate('Feed');
+      try {
+          AsyncStorage.setItem("feeds", JSON.stringify(this.state.feeds));
+      } catch (e) {
+          console.log(e);
+      }
+      this.props.navigation.navigate("Feed");
   }
 
   /*
@@ -79,31 +86,31 @@ export default class Settings extends Component {
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
    */ 
   addRSSFeed() {
-    // TODO: push success/error message w/ toast
-    // figure out how to call toast
+      // TODO: push success/error message w/ toast
+      // figure out how to call toast
 
-    let re = new RegExp('[Hh]ttps?://.*\.(json)|(rss)');
-    if (this.state.new_site === "" || !re.test(this.state.new_site)) {
-      Toast.show({
-        text: 'Please include valid RSS site',
-        buttonText: 'Okay',
-        duration: 2500,
-        position: 'bottom',
-        textStyle: { textAlign: 'center' },
-      });
-    } else {
-      let feeds = [...this.state.feeds];
-      feeds.push({on: true, site: this.state.new_site.toLowerCase()});
-      this.setState({ feeds: feeds, new_site: "" });
-      Toast.show({
-        text: 'Success!',
-        buttonText: 'Okay',
-        duration: 2500,
-        type: 'success',
-        position: 'bottom',
-        textStyle: { textAlign: 'center' },
-      });
-    }
+      let re = new RegExp("[Hh]ttps?://.*(json)|(rss)");
+      if (this.state.new_site === "" || !re.test(this.state.new_site)) {
+          Toast.show({
+              text: "Please include valid RSS site",
+              buttonText: "Okay",
+              duration: 2500,
+              position: "bottom",
+              textStyle: { textAlign: "center" },
+          });
+      } else {
+          let feeds = [...this.state.feeds];
+          feeds.push({on: true, site: this.state.new_site.toLowerCase()});
+          this.setState({ feeds: feeds, new_site: "" });
+          Toast.show({
+              text: "Success!",
+              buttonText: "Okay",
+              duration: 2500,
+              type: "success",
+              position: "bottom",
+              textStyle: { textAlign: "center" },
+          });
+      }
   }
 
   /*
@@ -111,23 +118,23 @@ export default class Settings extends Component {
    * update async every time?
    */
   deleteRSS(index) {
-    let feeds = [...this.state.feeds];
+      let feeds = [...this.state.feeds];
 
-    // delete element from array
-    // if only one element left then initializes empty array
-    // otherwise splice the element out
-    feeds.length === 1 ? feeds = [] : feeds.splice(index, 1);
+      // delete element from array
+      // if only one element left then initializes empty array
+      // otherwise splice the element out
+      feeds.length === 1 ? feeds = [] : feeds.splice(index, 1);
 
-    this.setState({ feeds: feeds });
+      this.setState({ feeds: feeds });
   }
 
   /*
    * toggleRSS - toggles if we look for RSS feed by switch
    */
   toggleRSS(index) {
-    let feeds = [...this.state.feeds];
-    feeds[index].on = !feeds[index].on;
-    this.setState({ feeds: feeds });
+      let feeds = [...this.state.feeds];
+      feeds[index].on = !feeds[index].on;
+      this.setState({ feeds: feeds });
   }
 
   /*
@@ -136,34 +143,34 @@ export default class Settings extends Component {
    * right gives option to swipe the item to open up a option to delete
    */
   renderActivateRSSFeed(item, index) {
-    return (
-            <SwipeRow
+      return (
+          <SwipeRow
               style={{
-                backgroundColor: Colors.backgroundColor
+                  backgroundColor: Colors.backgroundColor
               }}
               disableRightSwipe={true}
               rightOpenValue={-51}
               body={
-                <View>
-                <TouchableOpacity onPress={() => this.toggleRSS(index)}>
-                    <Text 
-                      style={{
-                        color: Colors.primaryTextColor,
-                        textDecorationLine: (item.on ? 'none' : 'line-through')
-                      }}
-                    >
-                      { item.site }
-                    </Text>
-                </TouchableOpacity> 
-                </View>
+                  <View>
+                      <TouchableOpacity onPress={() => this.toggleRSS(index)}>
+                          <Text 
+                              style={{
+                                  color: Colors.primaryTextColor,
+                                  textDecorationLine: (item.on ? "none" : "line-through")
+                              }}
+                          >
+                              { item.site }
+                          </Text>
+                      </TouchableOpacity> 
+                  </View>
               }
               right={
-                <Button full danger onPress={ () => this.deleteRSS(index) }>
-                  <Icon active name="trash" />
-                </Button>
+                  <Button full danger onPress={ () => this.deleteRSS(index) }>
+                      <Icon active name="trash" />
+                  </Button>
               }
-            />
-    );
+          />
+      );
   }
 
   /*
@@ -171,83 +178,83 @@ export default class Settings extends Component {
    * 
    */
   renderControlContainer() {
-    return (
-      <View style={styles.controlContainer}>
-        <Item style={{borderColor: 'transparent'}}>
-          <Input 
-            style={{ color: Colors.primaryTextColor }}
-            placeholderTextColor={ Colors.primaryTextColor }
-            onChangeText={(new_site) => this.setState({new_site})}
-            value={this.state.new_site}
-            placeholder="Type here to add new RSS feeds"
-          />
-          <Button success full
-            onPress={ () => this.addRSSFeed() }
-            accessibilityLabel="Press button to add website RSS feed"
-          >
-            <Icon type='FontAwesome' name='plus' />
-          </Button>
-        </Item>
+      return (
+          <View style={styles.controlContainer}>
+              <Item style={{borderColor: "transparent"}}>
+                  <Input 
+                      style={{ color: Colors.primaryTextColor }}
+                      placeholderTextColor={ Colors.primaryTextColor }
+                      onChangeText={(new_site) => this.setState({new_site})}
+                      value={this.state.new_site}
+                      placeholder="Type here to add new RSS feeds"
+                  />
+                  <Button success full
+                      onPress={ () => this.addRSSFeed() }
+                      accessibilityLabel="Press button to add website RSS feed"
+                  >
+                      <Icon type='FontAwesome' name='plus' />
+                  </Button>
+              </Item>
     
-        <Item style={{borderColor: 'transparent'}}>
-          <Button rounded
-            onPress={() => this.setRSS()}
-            style = {{ backgroundColor: '#3e3f40' }}
-            accessibilityLabel="Press button to update settings and navigate back to main feed."
-          >
-            <Text>Update!</Text>
-          </Button>
-        </Item>
-        </View>
-    );
+              <Item style={{borderColor: "transparent"}}>
+                  <Button rounded
+                      onPress={() => this.setRSS()}
+                      style = {{ backgroundColor: "#3e3f40" }}
+                      accessibilityLabel="Press button to update settings and go back."
+                  >
+                      <Text>Update!</Text>
+                  </Button>
+              </Item>
+          </View>
+      );
   }
 
   /*
    * render - render jsx
    */
   render() {
-    return (
-      <Container>
-        <Content 
-          style={styles.container}
-          contentContainerStyle={{
-            justifyContent:'center',
-          }}
-        >
+      return (
+          <Container>
+              <Content 
+                  style={styles.container}
+                  contentContainerStyle={{
+                      justifyContent:"center",
+                  }}
+              >
 
-        {/* TODO: make list take 80% of screen and buttons take 20% */}
-        {/* Generate List of RSS Feeds */}
-        <FlatList
-          style={styles.listContainer}
-          data={this.state.feeds}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item, index }) => 
-            this.renderActivateRSSFeed(item, index)
-          }
-        />
+                  {/* TODO: make list take 80% of screen and buttons take 20% */}
+                  {/* Generate List of RSS Feeds */}
+                  <FlatList
+                      style={styles.listContainer}
+                      data={this.state.feeds}
+                      keyExtractor={(item, index) => index.toString()}
+                      renderItem={({ item, index }) => 
+                          this.renderActivateRSSFeed(item, index)
+                      }
+                  />
 
-          {/* Generate control input/button to add feed, button to update */}
-          { this.renderControlContainer() } 
-        </Content>
+                  {/* Generate control input/button to add feed, button to update */}
+                  { this.renderControlContainer() } 
+              </Content>
 
-        <Toast />
-      </Container>
-    );
+              <Toast />
+          </Container>
+      );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: Colors.backgroundColor
-  },
-  listContainer: {
-    flex: 0.8,
-    backgroundColor: Colors.backgroundColor,
-  },
-  controlContainer: {
-    flex: 0.2,
-    alignItems: 'center',
-  },
+    container: {
+        flex: 1,
+        flexDirection: "column",
+        backgroundColor: Colors.backgroundColor
+    },
+    listContainer: {
+        flex: 0.8,
+        backgroundColor: Colors.backgroundColor,
+    },
+    controlContainer: {
+        flex: 0.2,
+        alignItems: "center",
+    },
 });
