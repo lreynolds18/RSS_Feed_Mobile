@@ -1,5 +1,14 @@
 import React, { Component } from 'react';
-import { AsyncStorage, StyleSheet, Button, Text, View } from 'react-native';
+import { AsyncStorage, FlatList, StyleSheet } from 'react-native';
+
+import {
+  Container,
+  Content,
+  Fab,
+  Icon,
+  Text,
+  View,
+} from 'native-base';
 
 import Colors from './Colors';
 
@@ -20,7 +29,7 @@ export default class Feed extends Component {
    */
   constructor(props) {
     super(props);
-    this.state = { isLoading: true };
+    this.state = { isLoading: true, RSS: ["hello", "world"] };
   }
 
   /*
@@ -57,11 +66,11 @@ export default class Feed extends Component {
   }
 
   /*
-   * link_builder - build each view for every link in rss
+   * renderRSSFeed - build each view for every link in rss
    */
-  link_builder(link) {
+  renderRSSFeed(link) {
     return (
-        <Text>Hello There</Text>
+        <Text style={{color: Colors.primaryTextColor}}>Hello There</Text>
     );
   }
 
@@ -70,24 +79,41 @@ export default class Feed extends Component {
    */
   render() {
     return (
-      <View style={[styles.view, {backgroundColor: Colors.backgroundColor}]}>
-        <Text style={{color: Colors.primaryTextColor}}>Open up App.js to start working on your app!</Text>
-
-        <Button
-          onPress={() => this.props.navigation.navigate('Settings')}
-          title="Change Settings"
-          color={ Colors.primaryDarkColor }
-          accessibilityLabel="Press button to change settings."
+      <Container>
+        <Content 
+          style={{backgroundColor: Colors.backgroundColor}}
+          contentContainerstyle={{
+            flex: 1, 
+            flexDirection:'column', 
+            justifyContent:'center'
+          }}
+        >
+          
+        {/* Generate List of RSS Feeds */}
+        <FlatList
+          style={{flex: 1}}
+          data={this.state.RSS}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => 
+            this.renderRSSFeed(item, index)
+          }
         />
-      </View>
+        </Content>
+
+        <Fab
+            active={false}
+            containerStyle={{ }}
+            direction="up"
+            style={{ flex: 1, backgroundColor: Colors.primaryDarkColor }}
+            position="bottomRight"
+            onPress={() => this.props.navigation.navigate('Settings')}
+            accessibilityLabel="Press button to change settings.">
+            <Icon name="cog" />
+        </Fab>
+      </Container>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  view: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
 });
