@@ -38,7 +38,7 @@ export default class Feed extends Component {
   }
 
   /*
-   * componentWillMount - get feeds from asyncstorage
+   * componentDidMount - get feeds from asyncstorage
    * then call makeXMLRequest or makeJSONRequest depending on api call
    * TODO: should this be in componentWillMount or componentDidMount or something else
    * componentWillMount is depreciated 
@@ -47,7 +47,7 @@ export default class Feed extends Component {
    * TODO: can we handle async calls better?
    * TODO: handle json calls
    */
-  componentWillMount() {
+  componentDidMount() {
       // get sites to pull RSS Feed from
       console.log("in mnt");
       try {
@@ -55,6 +55,8 @@ export default class Feed extends Component {
               .then((value) => {
                   if (value !== null) {
                       value = JSON.parse(value);
+                      value = [...value];
+                      console.log(value);
                       this.setState({ "RSS": value });
                       console.log(this.state);
           
@@ -146,8 +148,8 @@ export default class Feed extends Component {
                   position="bottomRight"
                   onPress={() => this.props.navigation.navigate("Settings")}
                   accessibilityLabel="Press button to change settings.">
-                  <Icon name="cog" 
-              />
+                  <Icon name="cog" />
+              </Fab>
           </Container>
       );
   }

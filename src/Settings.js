@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import {
     AsyncStorage, 
+    Alert,
     FlatList,
     StyleSheet,
     TouchableOpacity 
@@ -14,13 +15,8 @@ import {
     Icon,
     Input, 
     Item,
-    //    ListItem, 
-    //    Left,
-    //    Right,
     SwipeRow,
-    //    Switch,
     Text,
-    Toast,
     View
 } from "native-base";
 
@@ -36,9 +32,7 @@ export default class Settings extends Component {
           title: "Settings",
           headerStyle: { backgroundColor: navigationOptions.headerTintColor },
           headerTintColor: navigationOptions.headerStyle.backgroundColor,
-          /* TODO: make work
-           * auto generated back button needs to trigger setRSS to save settings
-
+          /*
           header: ({ goBack }) => ({
             left: <Icon name={'chevron-left'} onPress={() => {this.setRSS()}} />,
           }),
@@ -73,6 +67,7 @@ export default class Settings extends Component {
   }
 
   async setRSS() {
+      console.log("called");
       try {
           AsyncStorage.setItem("feeds", JSON.stringify(this.state.feeds));
       } catch (e) {
@@ -86,30 +81,26 @@ export default class Settings extends Component {
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
    */ 
   addRSSFeed() {
-      // TODO: push success/error message w/ toast
-      // figure out how to call toast
+      // TODO: add style to alert (or figure out toast)
 
       let re = new RegExp("[Hh]ttps?://.*(json)|(rss)");
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
-          Toast.show({
-              text: "Please include valid RSS site",
-              buttonText: "Okay",
-              duration: 2500,
-              position: "bottom",
-              textStyle: { textAlign: "center" },
-          });
+          Alert.alert(
+              "Please provide a valid site!",
+              "You provided " + this.state.new_site,
+              [ {text: "OK"}, ],
+              { cancelable: false }
+          );
       } else {
           let feeds = [...this.state.feeds];
           feeds.push({on: true, site: this.state.new_site.toLowerCase()});
           this.setState({ feeds: feeds, new_site: "" });
-          Toast.show({
-              text: "Success!",
-              buttonText: "Okay",
-              duration: 2500,
-              type: "success",
-              position: "bottom",
-              textStyle: { textAlign: "center" },
-          });
+          Alert.alert(
+              "Success",
+              "Added " + this.state.new_site,
+              [ {text: "OK"}, ],
+              { cancelable: false }
+          );
       }
   }
 
@@ -145,9 +136,7 @@ export default class Settings extends Component {
   renderActivateRSSFeed(item, index) {
       return (
           <SwipeRow
-              style={{
-                  backgroundColor: Colors.backgroundColor
-              }}
+              style={{ backgroundColor: Colors.backgroundColor }}
               disableRightSwipe={true}
               rightOpenValue={-51}
               body={
