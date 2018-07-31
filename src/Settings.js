@@ -86,7 +86,7 @@ export default class Settings extends Component {
       let re = new RegExp("[Hh]ttps?://.*(json)|(rss)");
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
           Alert.alert(
-              "Please provide a valid site!",
+              "Error: RSS feed must be a valid site",
               "You provided " + this.state.new_site,
               [ {text: "OK"}, ],
               { cancelable: false }
@@ -225,8 +225,6 @@ export default class Settings extends Component {
                   {/* Generate control input/button to add feed, button to update */}
                   { this.renderControlContainer() } 
               </Content>
-
-              <Toast />
           </Container>
       );
   }
