@@ -53,26 +53,26 @@ export default class Settings extends Component {
    * only calling asyncstorage on mount and update (go back)
    */
   async componentDidMount() {
-      try {
-          AsyncStorage.getItem("feeds")
-              .then((value) => {
-                  console.log(value);
-                  if (value) {
-                      this.setState({ "feeds": JSON.parse(value) });
-                  }
-              });
-      } catch (e) {
-          console.log(e);
-      }
+      AsyncStorage
+          .getItem("feeds")
+          .then((value) => {
+              console.log(value);
+              if (value) {
+                  this.setState({ "feeds": JSON.parse(value) });
+              }
+          })
+          .catch((error) => {
+              console.log(error);
+          });
   }
 
   async setRSS() {
       console.log("called");
-      try {
-          AsyncStorage.setItem("feeds", JSON.stringify(this.state.feeds));
-      } catch (e) {
-          console.log(e);
-      }
+      AsyncStorage
+          .setItem("feeds", JSON.stringify(this.state.feeds))
+          .catch((error) => {
+              console.log(error);
+          });
       this.props.navigation.navigate("Feed");
   }
 

@@ -9,8 +9,9 @@ import {
     Content,
     Fab,
     Icon,
+    Spinner,
     Text,
-//    View,
+    View,
 } from "native-base";
 import { parseString } from "react-native-xml2js";
 
@@ -50,30 +51,33 @@ export default class Feed extends Component {
   componentDidMount() {
       // get sites to pull RSS Feed from
       console.log("in mnt");
-      try {
-          AsyncStorage.getItem("feeds")
-              .then((value) => {
-                  if (value !== null) {
-                      value = JSON.parse(value);
-                      value = [...value];
-                      console.log(value);
-                      this.setState({ "RSS": value });
-                      console.log(this.state);
+      AsyncStorage.getItem("feeds")
+          .then((value) => {
+              if (value === null) {
+                  Alert.alert(
+                      "Error: no RSS feeds available",
+                      "Please enter feeds in settings",
+                      [ {text: "OK"}, ],
+                      { cancelable: false }
+                  );
+              } else {
+                  value = [...JSON.parse(value)];
+                  this.setState({ "RSS": value });
           
-                      value.forEach((rss) => {
-                          if (rss.on) {
-                              try {
-                                  this.makeXMLRequest(rss.site);
-                              } catch (e) {
-                                  console.log("ERROR", rss.site, e);
-                              }
+                  value.forEach((rss) => {
+                      if (rss.on) {
+                          try {
+                              this.makeXMLRequest(rss.site);
+                          } catch (e) {
+                              console.log("ERROR", rss.site, e);
                           }
-                      }); 
-                  }
-              });
-      } catch (e) {
-          console.log(e);
-      }
+                      }
+                  }); 
+              }
+          })
+          .catch((error) => {
+              console.log(error);
+          });
   }
 
   /*
@@ -81,6 +85,7 @@ export default class Feed extends Component {
    * @site - site to get rss feed data from
    */
   makeXMLRequest(site) {
+      console.log("in fetch");
       var request = new XMLHttpRequest();
 
       request.onreadystatechange = () => {
@@ -93,7 +98,7 @@ export default class Feed extends Component {
               // console.log('success', request.responseText);
               parseString(request.response, (err, result) => {
                   let feeds = [...this.state.feeds, ...result.feed.entry];
-                  this.setState({ feeds: feeds });
+                  this.setState({ isLoading: false, feeds: feeds });
               });
           } else {
               console.warn("error: " + request.status);
@@ -108,9 +113,34 @@ export default class Feed extends Component {
    * renderRSSFeed - build each view for every link in rss
    */
   renderRSSFeed(item, index) {
+      // link to thread: item.link[0].$
+      // title: item.title[0]
+      // content: item.content[0]._
       return (
-          <Text style={{color: Colors.primaryTextColor}}>{ item.site }</Text>
+          <View>
+              <Text style={{color: Colors.primaryTextColor}}>{ item.site }</Text>
+          </View>
       );
+  }
+
+  /* 
+   * Generate List of RSS Feeds 
+   */
+  renderBody() {
+      if (this.state.isLoading) {
+          return ( <Spinner color='gray' /> );
+      } else {
+          return (
+              <FlatList
+                  style={{flex: 1}}
+                  data={this.state.RSS}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item, index }) => 
+                      this.renderRSSFeed(item, index)
+                  }
+              />
+          );
+      }
   }
 
   /*
@@ -128,16 +158,7 @@ export default class Feed extends Component {
                       justifyContent:"center"
                   }}
               >
-          
-                  {/* Generate List of RSS Feeds */}
-                  <FlatList
-                      style={{flex: 1}}
-                      data={this.state.RSS}
-                      keyExtractor={(item, index) => index.toString()}
-                      renderItem={({ item, index }) => 
-                          this.renderRSSFeed(item, index)
-                      }
-                  />
+                  { this.renderBody() }          
               </Content>
 
               <Fab
