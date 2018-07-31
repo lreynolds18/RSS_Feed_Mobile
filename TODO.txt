@@ -1,5 +1,4 @@
-- Use asyncstorage to store rss websites
-- Use fetch to get api data
-- Make nice / easy to read in dark (native base)
-- Make switch transitions faster
- 
+- Make async storage more reliable (maybe it is in production? w/o expo)
+- Make fetch for json object (make fetch more robust for other sites)
+- Sort content by date or relevance
+- Make jsx for each content
