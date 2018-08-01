@@ -9,6 +9,8 @@ import {
     Content,
     Fab,
     Icon,
+    Item,
+    ListItem,
     Spinner,
     Text,
     View,
@@ -35,7 +37,7 @@ export default class Feed extends Component {
    */
   constructor(props) {
       super(props);
-      this.state = { isLoading: true, RSS: [], feeds: []} ;
+      this.state = { RSS: [], feeds: []} ;
   }
 
   /*
@@ -98,7 +100,7 @@ export default class Feed extends Component {
               // console.log('success', request.responseText);
               parseString(request.response, (err, result) => {
                   let feeds = [...this.state.feeds, ...result.feed.entry];
-                  this.setState({ isLoading: false, feeds: feeds });
+                  this.setState({ feeds: feeds });
               });
           } else {
               console.warn("error: " + request.status);
@@ -113,13 +115,20 @@ export default class Feed extends Component {
    * renderRSSFeed - build each view for every link in rss
    */
   renderRSSFeed(item, index) {
-      // link to thread: item.link[0].$
-      // title: item.title[0]
-      // content: item.content[0]._
+      // const author = item.author[0].name[0];
+      // <Text style={{color: Colors.primaryTextColor}}>{ author }</Text>
+
+      const title = item.title[0];
+      let content = item.content[0]['_'];
+      content = content.substring(content.lastIndexOf("<p>") + 3, content.lastIndexOf("</p>"));
+      const link = item.link[0].$.href;
+
       return (
-          <View>
-              <Text style={{color: Colors.primaryTextColor}}>{ item.site }</Text>
-          </View>
+          <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"center"}}>
+              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ title }</Text>
+              <Text style={{color: Colors.primaryTextColor, flex: 0.8}}>{ content }</Text>
+              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ link }</Text>
+          </ListItem>
       );
   }
 
@@ -127,13 +136,13 @@ export default class Feed extends Component {
    * Generate List of RSS Feeds 
    */
   renderBody() {
-      if (this.state.isLoading) {
+      if (this.state.feeds.length === 0) {
           return ( <Spinner color='gray' /> );
       } else {
           return (
               <FlatList
                   style={{flex: 1}}
-                  data={this.state.RSS}
+                  data={this.state.feeds}
                   keyExtractor={(item, index) => index.toString()}
                   renderItem={({ item, index }) => 
                       this.renderRSSFeed(item, index)
