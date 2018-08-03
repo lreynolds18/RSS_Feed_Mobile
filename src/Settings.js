@@ -4,6 +4,7 @@ import {
     AsyncStorage, 
     Alert,
     FlatList,
+    Keyboard,
     StyleSheet,
     TouchableOpacity 
 } from "react-native";
@@ -17,6 +18,7 @@ import {
     Item,
     SwipeRow,
     Text,
+    Toast,
     View
 } from "native-base";
 
@@ -81,26 +83,27 @@ export default class Settings extends Component {
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
    */ 
   addRSSFeed() {
-      // TODO: add style to alert (or figure out toast)
+      // TODO: trigger keyboard to close on button press
 
       let re = new RegExp("[Hh]ttps?://.*(json)|(rss)");
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
-          Alert.alert(
-              "Error: RSS feed must be a valid site",
-              "You provided " + this.state.new_site,
-              [ {text: "OK"}, ],
-              { cancelable: false }
-          );
+          Keyboard.dismiss();
+          Toast.show({
+              text: 'Error: RSS feed must be a valid site',
+              buttonText: 'OK',
+              type: "warning",
+          });
       } else {
           let feeds = [...this.state.feeds];
-          feeds.push({on: true, site: this.state.new_site.toLowerCase()});
+          let new_site = this.state.new_site.toLowerCase();
+          feeds.push({on: true, site: new_site});
           this.setState({ feeds: feeds, new_site: "" });
-          Alert.alert(
-              "Success",
-              "Added " + this.state.new_site,
-              [ {text: "OK"}, ],
-              { cancelable: false }
-          );
+          
+          Toast.show({
+              text: "Success! Added " + new_site,
+              buttonText: 'OK',
+              type: "success",
+          });
       }
   }
 

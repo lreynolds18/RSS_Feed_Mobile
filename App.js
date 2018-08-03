@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { createStackNavigator } from 'react-navigation';
+import { Root } from "native-base";
 
 import FeedScreen from './src/Feed';
 import SettingsScreen from './src/Settings';
@@ -35,6 +36,10 @@ export default class App extends Component {
   }
 
   render() {
-    return <RootStack />;
+    return (
+        <Root>
+          <RootStack />
+        </Root>
+    );
   }
 }

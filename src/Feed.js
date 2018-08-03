@@ -56,6 +56,7 @@ export default class Feed extends Component {
       AsyncStorage.getItem("feeds")
           .then((value) => {
               if (value === null) {
+                  // replace with text and button
                   Alert.alert(
                       "Error: no RSS feeds available",
                       "Please enter feeds in settings",
