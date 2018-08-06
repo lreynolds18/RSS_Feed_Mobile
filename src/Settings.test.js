@@ -1,8 +1,19 @@
 import React from "react";
-import renderer from "react-test-renderer";
+import { shallow, configure } from 'enzyme';
+import Adapter from "enzyme-adapter-react-16";
+
 import Settings from "./Settings";
 
-it("renders without crashing", () => {
-    const rendered = renderer.create(<Settings />).toJSON();
-    expect(rendered).toBeTruthy();
+configure({ adapter: new Adapter() });
+
+describe("Test UI", () => {
+    let component;
+
+    beforeEach(() => {
+        component = shallow(<Settings />);
+    });
+
+    it("renders without crashing", () => {
+        expect(component).toBeTruthy();
+    });
 });

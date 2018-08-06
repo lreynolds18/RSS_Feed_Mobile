@@ -1,9 +1,19 @@
 import React from 'react';
+import { mount, configure } from 'enzyme';
+import Adapter from "enzyme-adapter-react-16";
+
 import App from './App';
 
-import renderer from 'react-test-renderer';
+configure({ adapter: new Adapter() });
 
-it('renders without crashing', () => {
-  const rendered = renderer.create(<App />).toJSON();
-  expect(rendered).toBeTruthy();
+describe("Test UI", () => {
+    let component;
+
+    beforeEach(() => {
+        component = mount(<App />);
+    });
+
+    it("renders without crashing", () => {
+        expect(component).toBeTruthy();
+    });
 });
