@@ -21,8 +21,6 @@ import { parseString } from "react-native-xml2js";
 
 import Colors from "./Colors";
 
-// var DomParser = require('react-native-html-parser').DOMParser;
-
 // TODO: check if shouldComponentUpdate(nextProps, nextState) can update the 
 //       state when the objects in state are partially changed
 //       (instead of having to redefine an array)
@@ -130,6 +128,7 @@ export default class Feed extends Component {
 
       const title = item.title[0];
       let content = item.content[0]['_'];
+      console.log(this.htmlParser(content));
       let htmlStyle = "<style> .div { color: #ffffff } </style>";
 
       // let result = this.htmlParser(content);
