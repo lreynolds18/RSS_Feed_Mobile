@@ -1,4 +1,13 @@
-- Make async storage more reliable (maybe it is in production? w/o expo)
+- Beautifully display text / video
+
+- check if shouldComponentUpdate(nextProps, nextState) can update the state when the objects in state are partially changed (instead of having to redefine an array)
+
+- Figure out where to put asyncstorage and data fetchs so that they are more reliable and called when RSS feeds get added. Also figure out why asyncstorage sometimes has no data in it.
+
 - Make fetch for json object (make fetch more robust for other sites)
+
 - Sort content by date or relevance
-- Make jsx for each content
+
+- Make toast more reliable and faster
+
+- Fix npm audit vulnerabilities (can't upgrade because react, react-native, expo and sdk-version need to be aligned)
