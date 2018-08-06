@@ -1,6 +1,8 @@
 - Beautifully display text / video
 
-- check if shouldComponentUpdate(nextProps, nextState) can update the state when the objects in state are partially changed (instead of having to redefine an array)
+- Call state update or something to notify render to display that asyncstorage is empty (right now, it just keeps spinning the loading symbol)
+
+- Check if shouldComponentUpdate(nextProps, nextState) can update the state when the objects in state are partially changed (instead of having to redefine an array)
 
 - Figure out where to put asyncstorage and data fetchs so that they are more reliable and called when RSS feeds get added. Also figure out why asyncstorage sometimes has no data in it.
 
