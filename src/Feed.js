@@ -77,6 +77,8 @@ export default class Feed extends Component {
                       }
                   }); 
               }
+          }, (error) => {
+              this.setState({ loaded: true });
           })
           .catch((error) => {
               console.log(error);
@@ -113,39 +115,42 @@ export default class Feed extends Component {
   }
 
   /*
-   * htmlParser - extracts out any html tags
+   * parseRedditXML - Extract meaningful data from XML.
+   *                  Process content html into something that react native 
+   *                  can handle.
    */
-  htmlParser(html) {
-    return html;
+  parseRedditXML(xml) {
+    let content = xml.content[0]['_'];
+    content = content.substring(content.lastIndexOf("<div class=\"md\">") + 16, content.lastIndexOf("</div>")); 
+
+    const data = {
+      author: xml.author[0].name[0],
+      title: xml.title[0],
+      link: xml.link[0].$.href,
+      content: content,
+    };
+    
+    return data;
   }
 
   /*
    * renderRSSFeed - build each view for every link in rss
    */
   renderRSSFeed(item, index) {
-      // const author = item.author[0].name[0];
       // <Text style={{color: Colors.primaryTextColor}}>{ author }</Text>
 
-      const title = item.title[0];
-      let content = item.content[0]['_'];
-      console.log(this.htmlParser(content));
-      let htmlStyle = "<style> .div { color: #ffffff } </style>";
-
-      // let result = this.htmlParser(content);
-      // console.log(result);
-      // content = content.substring(content.lastIndexOf("<div class=\"md\">") + 16, content.lastIndexOf("</div>"));
-
-      const link = item.link[0].$.href;
 
       //    <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"center"}}>
       //        <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ link }</Text>
+      const data = this.parseRedditXML(item);
+      console.log(data);
       return (
           <ListItem style={{flex: 1, justifyContent:"center"}}>
-              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ title }</Text>
+              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ data.title }</Text>
               <View style={{flex: 0.9}}>
                   <WebView
                     style={{flex: 0.9}}
-                    source={{ html: content }} 
+                    source={{ html: data.content }} 
                     scalesPageToFit={ true }
                     scrollEnabled={ false }
                   />
