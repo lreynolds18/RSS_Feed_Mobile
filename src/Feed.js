@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { 
     AsyncStorage, 
     FlatList, 
-//    StyleSheet,
+    StyleSheet,
     Platform,
     WebView,
 } from "react-native";
@@ -18,6 +18,7 @@ import {
     View,
 } from "native-base";
 import { parseString } from "react-native-xml2js";
+import HTMLView from 'react-native-htmlview';
 
 import Colors from "./Colors";
 
@@ -44,7 +45,7 @@ export default class Feed extends Component {
    */
   constructor(props) {
       super(props);
-      this.state = { loaded: false, RSS: [], feeds: []} ;
+      this.state = { failed: false, RSS: [], feeds: []} ;
   }
 
   /*
@@ -62,7 +63,7 @@ export default class Feed extends Component {
       console.log("in mnt");
       AsyncStorage.getItem("feeds")
           .then((value) => {
-              this.setState({ loaded: true });
+              this.setState({ failed: false });
               if (value !== null) {
                   value = [...JSON.parse(value)];
                   this.setState({ "RSS": value });
@@ -78,12 +79,13 @@ export default class Feed extends Component {
                   }); 
               }
           }, (error) => {
-              this.setState({ loaded: true });
+              this.setState({ failed: true });
           })
           .catch((error) => {
               console.log(error);
           });
   }
+
 
   /*
    * makeRSSRequest - get xml from RSS request
@@ -101,7 +103,6 @@ export default class Feed extends Component {
 
           if (request.status === 200) {
               parseString(request.response, (err, result) => {
-                  console.log(result);
                   let feeds = [...this.state.feeds, ...result.feed.entry];
                   this.setState({ feeds: feeds });
               });
@@ -121,7 +122,7 @@ export default class Feed extends Component {
    */
   parseRedditXML(xml) {
     let content = xml.content[0]['_'];
-    content = content.substring(content.lastIndexOf("<div class=\"md\">") + 16, content.lastIndexOf("</div>")); 
+    // content = content.substring(content.lastIndexOf("<div class=\"md\">") + 16, content.lastIndexOf("</div>")); 
 
     const data = {
       author: xml.author[0].name[0],
@@ -142,11 +143,7 @@ export default class Feed extends Component {
 
       //    <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"center"}}>
       //        <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ link }</Text>
-      const data = this.parseRedditXML(item);
-      console.log(data);
-      return (
-          <ListItem style={{flex: 1, justifyContent:"center"}}>
-              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ data.title }</Text>
+      /*
               <View style={{flex: 0.9}}>
                   <WebView
                     style={{flex: 0.9}}
@@ -155,6 +152,17 @@ export default class Feed extends Component {
                     scrollEnabled={ false }
                   />
               </View>
+      */
+      const data = this.parseRedditXML(item);
+      // console.log(data);
+      return (
+          <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"flex-start"}}>
+              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ data.title }</Text>
+              <HTMLView
+                  style={{flex:0.9}} 
+                  stylesheet={styles}
+                  value={ data.content }
+              />
           </ListItem>
       );
   }
@@ -163,12 +171,12 @@ export default class Feed extends Component {
    * Generate List of RSS Feeds 
    */
   renderBody() {
-      if (this.state.feeds.length === 0 && this.state.loaded === false) {
+      if (this.state.feeds.length === 0 && this.state.failed === false) {
           return ( <Spinner color='gray' /> );
-      } else if (this.state.feeds.length === 0 && this.state.loaded === true) {
+      } else if (this.state.feeds.length === 0 && this.state.failed === true) {
           return ( 
               <Text 
-                style={{justifyContent: "center", color: Colors.primaryTextColor}}>
+                style={{flex: 1, flexDirection:"column", justifyContent: "center", color: Colors.primaryTextColor}}>
                   Enter some RSS feeds to get started!
               </Text>
           );
@@ -191,10 +199,10 @@ export default class Feed extends Component {
    */
   render() {
       console.log(this.state);
-      // style={{backgroundColor: Colors.backgroundColor}}
       return (
           <Container>
               <Content 
+                  style={{backgroundColor: Colors.backgroundColor}}
                   contentContainerstyle={{
                       flex: 1, 
                       flexDirection:"column", 
@@ -219,7 +227,8 @@ export default class Feed extends Component {
   }
 }
 
-/*
 const styles = StyleSheet.create({
+  div: {
+    color: Colors.primaryTextColor
+  }
 });
-*/
