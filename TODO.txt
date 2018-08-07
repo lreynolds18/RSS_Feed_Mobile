@@ -1,5 +1,9 @@
 - Beautifully display text / video
 
+- Use container component pattern - https://medium.com/@learnreact/container-components-c0e67432e005
+
+- Add comments page
+
 - Call state update or something to notify render to display that asyncstorage is empty (right now, it just keeps spinning the loading symbol)
 
 - Check if shouldComponentUpdate(nextProps, nextState) can update the state when the objects in state are partially changed (instead of having to redefine an array)
