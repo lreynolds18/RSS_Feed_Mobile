@@ -53,7 +53,7 @@ export default class Settings extends Component {
    * componentDidMount - call asyncstorage to get current feeds value
    * only calling asyncstorage on mount and update (go back)
    */
-  async componentDidMount() {
+  componentDidMount() {
       AsyncStorage
           .getItem("feeds")
           .then((value) => {
@@ -67,7 +67,7 @@ export default class Settings extends Component {
           });
   }
 
-  async setRSS() {
+  setRSS() {
       console.log("called");
       AsyncStorage
           .setItem("feeds", JSON.stringify(this.state.feeds))
@@ -91,6 +91,9 @@ export default class Settings extends Component {
               text: "Error: RSS feed must be a valid site",
               buttonText: "OK",
               type: "warning",
+              duration: 1500,
+              position: "bottom",
+              style: { bottom: "50%" }
           });
       } else {
           let feeds = [...this.state.feeds];
@@ -102,6 +105,9 @@ export default class Settings extends Component {
               text: "Success! Added " + new_site,
               buttonText: "OK",
               type: "success",
+              duration: 1500,
+              position: "bottom",
+              style: { bottom: "50%" }
           });
       }
   }
