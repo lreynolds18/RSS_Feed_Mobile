@@ -2,7 +2,6 @@ import React, { Component } from "react";
 
 import {
     AsyncStorage, 
-    Alert,
     FlatList,
     Keyboard,
     StyleSheet,
@@ -89,8 +88,8 @@ export default class Settings extends Component {
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
           Keyboard.dismiss();
           Toast.show({
-              text: 'Error: RSS feed must be a valid site',
-              buttonText: 'OK',
+              text: "Error: RSS feed must be a valid site",
+              buttonText: "OK",
               type: "warning",
           });
       } else {
@@ -101,7 +100,7 @@ export default class Settings extends Component {
           
           Toast.show({
               text: "Success! Added " + new_site,
-              buttonText: 'OK',
+              buttonText: "OK",
               type: "success",
           });
       }

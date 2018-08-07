@@ -3,22 +3,18 @@ import {
     AsyncStorage, 
     FlatList, 
     StyleSheet,
-    Platform,
-    WebView,
 } from "react-native";
 import {
     Container,
     Content,
     Fab,
     Icon,
-    Item,
     ListItem,
     Spinner,
     Text,
-    View,
 } from "native-base";
 import { parseString } from "react-native-xml2js";
-import HTMLView from 'react-native-htmlview';
+import HTMLView from "react-native-htmlview";
 
 import Colors from "./Colors";
 
@@ -121,84 +117,27 @@ export default class Feed extends Component {
    *                  can handle.
    */
   parseRedditXML(xml) {
-    let content = xml.content[0]['_'];
-    // content = content.substring(content.lastIndexOf("<div class=\"md\">") + 16, content.lastIndexOf("</div>")); 
-
-    const data = {
-      author: xml.author[0].name[0],
-      title: xml.title[0],
-      link: xml.link[0].$.href,
-      content: content,
-    };
-    
-    return data;
-  }
-
-  /*
-   * renderRSSFeed - build each view for every link in rss
-   */
-  renderRSSFeed(item, index) {
-      // <Text style={{color: Colors.primaryTextColor}}>{ author }</Text>
-
-
-      //    <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"center"}}>
-      //        <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ link }</Text>
+      let content = xml.content[0]["_"];
       /*
-              <View style={{flex: 0.9}}>
-                  <WebView
-                    style={{flex: 0.9}}
-                    source={{ html: data.content }} 
-                    scalesPageToFit={ true }
-                    scrollEnabled={ false }
-                  />
-              </View>
+      content = content.substring(
+        content.lastIndexOf("<div class=\"md\">") + 16, 
+        content.lastIndexOf("</div>")
+      ); 
       */
-      const data = this.parseRedditXML(item);
-      // console.log(data);
-      return (
-          <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"flex-start"}}>
-              <Text style={{color: Colors.primaryTextColor, flex: 0.1}}>{ data.title }</Text>
-              <HTMLView
-                  style={{flex:0.9}} 
-                  stylesheet={styles}
-                  value={ data.content }
-              />
-          </ListItem>
-      );
-  }
-
-  /* 
-   * Generate List of RSS Feeds 
-   */
-  renderBody() {
-      if (this.state.feeds.length === 0 && this.state.failed === false) {
-          return ( <Spinner color='gray' /> );
-      } else if (this.state.feeds.length === 0 && this.state.failed === true) {
-          return ( 
-              <Text 
-                style={{flex: 1, flexDirection:"column", justifyContent: "center", color: Colors.primaryTextColor}}>
-                  Enter some RSS feeds to get started!
-              </Text>
-          );
-      } else {
-          return (
-              <FlatList
-                  style={{flex: 1}}
-                  data={this.state.feeds}
-                  keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item, index }) => 
-                      this.renderRSSFeed(item, index)
-                  }
-              />
-          );
-      }
+      const data = {
+          author: xml.author[0].name[0],
+          title: xml.title[0],
+          link: xml.link[0].$.href,
+          content: content,
+      };
+    
+      return data;
   }
 
   /*
-   * render - render jsx
+   * render - Render jsx of Feed page
    */
   render() {
-      console.log(this.state);
       return (
           <Container>
               <Content 
@@ -225,10 +164,70 @@ export default class Feed extends Component {
           </Container>
       );
   }
+
+  /* 
+   * renderBody - Either Generate List of RSS Feeds, Loading Spinner, or Text
+   */
+  renderBody() {
+      if (this.state.feeds.length === 0 && this.state.failed === false) {
+          return ( 
+              <Spinner color='gray' />
+          );
+      } else if (this.state.feeds.length === 0 && this.state.failed === true) {
+          return ( 
+              <Text 
+                  style={{
+                      flex: 1,
+                      flexDirection:"column",
+                      justifyContent: "center", 
+                      color: Colors.primaryTextColor
+                  }}
+              >
+                  Enter some RSS feeds to get started!
+              </Text>
+          );
+      } else {
+          return (
+              <FlatList
+                  style={{flex: 1}}
+                  data={this.state.feeds}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item, index }) => 
+                      this.renderRSSFeed(item, index)
+                  }
+              />
+          );
+      }
+  }
+
+  /*
+   * renderRSSFeed - Build each view for every link in rss
+   */
+  renderRSSFeed(item, index) {
+      const data = this.parseRedditXML(item);
+      console.log(data);
+      return (
+          <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"flex-start"}}>
+              <Text 
+                  style={{
+                      color: Colors.primaryTextColor, 
+                      flex: 0.1
+                  }}
+              >
+                  { data.title }
+              </Text>
+              <HTMLView
+                  style={{flex:0.9}} 
+                  stylesheet={styles}
+                  value={ data.content }
+              />
+          </ListItem>
+      );
+  }
 }
 
 const styles = StyleSheet.create({
-  div: {
-    color: Colors.primaryTextColor
-  }
+    div: {
+        color: Colors.primaryTextColor
+    }
 });
