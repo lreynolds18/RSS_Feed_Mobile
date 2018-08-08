@@ -69,13 +69,53 @@ export default class Feed extends Component {
       this.fetchData();
   }
 
+  /* 
+   * parseEntries - given xml or json, 
+   *                find the entries and 
+   *                extract out the title, link, content, etc for each one
+   * @response - either xml or json, object returned from fetch call
+   * @site - hostname of site used (reddit, news.ycombinator, twitter...)
+   * @type - response type either of xml or json
+   */
+  parseEntries(response, site, type) {
+      switch (site) {
+          case "reddit":
+              if (type === "xml") {
+                  console.log(response);
+                  let entries = response.feed.entry;
+                  entries.forEach(function(item, index, arr) {
+                      /*
+                      content = content.substring(
+                        content.lastIndexOf("<div class=\"md\">") + 16, 
+                        content.lastIndexOf("</div>")
+                      ); 
+                      */
+                      arr[index] = {
+                        author: item.author[0].name[0],
+                        title: item.title[0],
+                        link: item.link[0].$.href,
+                        content: item.content[0]["_"],
+                      };
+                  });
+                  return entries;
+              } else if (type === "json") {
+                  console.log(response);
+                  console.warn("Error: unsupported");
+              }
+          case "news.ycombinator":
+          case "twitter":
+          default:
+              console.warn("Error: unsupported website");
+      }
+  }
+
   /*
    * fetchData - get RSS Feeds from AsyncStorage or this.props.screenProps.RSS
    *             then call makeXMLRequest or makeJSONRequest depending on ending
    * TODO: http fetchs will not work on IOS -- fix 
    *       (https://facebook.github.io/react-native/docs/network)
    * TODO: write parsing for JSON and setState
-   * TODO: write 
+   * TODO: write XML/JSON parser for reddit, hackernews, twitter, etc...
    */
   async fetchData() {
       try {
@@ -90,17 +130,30 @@ export default class Feed extends Component {
                       let calltype = rss.site.substring(
                         rss.site.lastIndexOf('.')+1, rss.site.length
                       );
+                      if (calltype === "rss") {
+                          calltype = "xml";
+                      }
+                      // TODO: make general
+                      let site = rss.site.substring(
+                        rss.site.lastIndexOf('//')+2, rss.site.lastIndexOf('.com')
+                      );
 
                       const response = await fetch(rss.site);
-                      if (calltype === "rss" || calltype === "xml") {
+                      if (calltype === "xml") {
                           const responseText = await response.text();
                           parseString(responseText, (err, result) => {
-                            let feeds = [...this.state.feeds, ...result.feed.entry];
-                            this.setState({ feeds: feeds });
+                              let feeds = [
+                                ...this.state.feeds, 
+                                ...this.parseEntries(result, site, calltype)
+                              ];
+                              this.setState({ feeds: feeds });
                           });
                       } else if (calltype === "json") {
-                          // TODO: setState of feeds for JSON
                           const responseJson = await response.json();
+                          let feeds = [
+                            ...this.state.feeds, 
+                            ...this.parseEntries(responseText, site, calltype)
+                          ];
                       }
                   }
               });
@@ -187,34 +240,9 @@ export default class Feed extends Component {
   }
 
   /*
-   * parseRedditXML - Extract meaningful data from XML.
-   *                  Process content html into something that react native 
-   *                  can handle.
-   */
-  parseRedditXML(xml) {
-      let content = xml.content[0]["_"];
-      /*
-      content = content.substring(
-        content.lastIndexOf("<div class=\"md\">") + 16, 
-        content.lastIndexOf("</div>")
-      ); 
-      */
-      const data = {
-          author: xml.author[0].name[0],
-          title: xml.title[0],
-          link: xml.link[0].$.href,
-          content: content,
-      };
-    
-      return data;
-  }
-
-  /*
    * renderRSSFeed - Build each view for every link in rss
    */
   renderRSSFeed(item, index) {
-      const data = this.parseRedditXML(item);
-      // console.log(data);
       return (
           <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"flex-start"}}>
               <Text 
@@ -223,12 +251,12 @@ export default class Feed extends Component {
                       flex: 0.1
                   }}
               >
-                  { data.title }
+                  { item.title }
               </Text>
               <HTMLView
                   style={{flex:0.9}} 
                   stylesheet={styles}
-                  value={ data.content }
+                  value={ item.content }
               />
           </ListItem>
       );
