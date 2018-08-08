@@ -18,9 +18,6 @@ import HTMLView from "react-native-htmlview";
 
 import Colors from "./Colors";
 
-// TODO: check if shouldComponentUpdate(nextProps, nextState) can update the 
-//       state when the objects in state are partially changed
-//       (instead of having to redefine an array)
 // TODO: figure out where to put asyncstorage and xml calls
 // TODO: beautifully display text / video
 
@@ -45,44 +42,6 @@ export default class Feed extends Component {
       console.log("in constuctor");
   }
 
-  /*
-   * componentDidMount - get feeds from asyncstorage
-   * then call makeXMLRequest or makeJSONRequest depending on api call
-   * TODO: should this be in componentWillMount or componentDidMount or something else
-   * componentWillMount is depreciated 
-   * https://reactjs.org/docs/react-component.html#unsafe_componentwillmount
-   * TODO: should this have async in front of it
-   * TODO: can we handle async calls better?
-   * TODO: handle json calls
-   * TODO: use async/await calls instead of promises .then
-   */
-  componentDidMount() {
-      console.log("did mount"); 
-      AsyncStorage.getItem("feeds")
-          .then((value) => {
-              this.setState({ failed: false });
-              if (value !== null) {
-                  value = [...JSON.parse(value)];
-                  this.props.screenProps.setRSS(value);
-          
-                  value.forEach((rss) => {
-                      if (rss.on) {
-                          try {
-                              this.makeXMLRequest(rss.site);
-                          } catch (e) {
-                              console.log("ERROR", rss.site, e);
-                          }
-                      }
-                  }); 
-              }
-          }, (error) => {
-              this.setState({ failed: true });
-          })
-          .catch((error) => {
-              console.log(error);
-          });
-  }
-
   componentWillMount() {
     console.log("will mount");
   }
@@ -98,6 +57,42 @@ export default class Feed extends Component {
 
   componentWillUnmount() {
     console.log("unmount");
+  }
+
+  /*
+   * componentDidMount - get feeds from asyncstorage
+   */
+  async componentDidMount() {
+      console.log("did mount"); 
+      fetchData();
+  }
+
+  /*
+   * fetchData - get RSS Feeds from AsyncStorage or this.props.screenProps.RSS
+   *             then call makeXMLRequest or makeJSONRequest depending on ending
+   * TODO: can we handle async calls better?
+   * TODO: handle json calls
+   *
+   */
+  async fetchData() {
+      try {
+          const RSS = await AsyncStorage.getItem("feeds");
+          if (RSS !== null) {
+              RSS = [...JSON.parse(RSS)];
+              this.props.screenProps.setRSS(RSS);
+          
+              RSS.forEach((rss) => {
+                  if (rss.on) {
+                      this.makeXMLRequest(rss.site);
+                  }); 
+              }
+          } else {
+              this.setState({ failed: true });
+          }
+      } catch(error) {
+          this.setState({ failed: true });
+          console.warn("Error fetching data", error);
+      }
   }
 
   /*
