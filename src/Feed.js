@@ -12,13 +12,15 @@ import {
     ListItem,
     Spinner,
     Text,
+    View,
 } from "native-base";
 import { parseString } from "react-native-xml2js";
 import HTMLView from "react-native-htmlview";
 
 import Colors from "./Colors";
 
-// TODO: figure out where to put asyncstorage and xml calls
+// TODO: put asyncstorage calls in App.js
+// TODO: put xml/json calls in Feed.js
 // TODO: beautifully display text / video
 
 export default class Feed extends Component {
@@ -64,28 +66,44 @@ export default class Feed extends Component {
    */
   async componentDidMount() {
       console.log("did mount"); 
-      fetchData();
+      this.fetchData();
   }
 
   /*
    * fetchData - get RSS Feeds from AsyncStorage or this.props.screenProps.RSS
    *             then call makeXMLRequest or makeJSONRequest depending on ending
-   * TODO: can we handle async calls better?
-   * TODO: handle json calls
-   *
+   * TODO: http fetchs will not work on IOS -- fix 
+   *       (https://facebook.github.io/react-native/docs/network)
+   * TODO: write parsing for JSON and setState
+   * TODO: write 
    */
   async fetchData() {
       try {
           const RSS = await AsyncStorage.getItem("feeds");
+          console.log(RSS);
           if (RSS !== null) {
               RSS = [...JSON.parse(RSS)];
               this.props.screenProps.setRSS(RSS);
           
-              RSS.forEach((rss) => {
+              RSS.forEach(async (rss) => {
                   if (rss.on) {
-                      this.makeXMLRequest(rss.site);
-                  }); 
-              }
+                      let calltype = rss.site.substring(
+                        rss.site.lastIndexOf('.')+1, rss.site.length
+                      );
+
+                      const response = await fetch(rss.site);
+                      if (calltype === "rss" || calltype === "xml") {
+                          const responseText = await response.text();
+                          parseString(responseText, (err, result) => {
+                            let feeds = [...this.state.feeds, ...result.feed.entry];
+                            this.setState({ feeds: feeds });
+                          });
+                      } else if (calltype === "json") {
+                          // TODO: setState of feeds for JSON
+                          const responseJson = await response.json();
+                      }
+                  }
+              });
           } else {
               this.setState({ failed: true });
           }
@@ -93,57 +111,6 @@ export default class Feed extends Component {
           this.setState({ failed: true });
           console.warn("Error fetching data", error);
       }
-  }
-
-  /*
-   * makeRSSRequest - get xml from RSS request
-   * @site - site to get rss feed data from
-   */
-  makeXMLRequest(site) {
-      console.log("in fetch");
-      var request = new XMLHttpRequest();
-
-      request.onreadystatechange = () => {
-      // request.onreadystatechange = (e) => {
-          if (request.readyState !== 4) {
-              return;
-          }
-
-          if (request.status === 200) {
-              parseString(request.response, (err, result) => {
-                  let feeds = [...this.state.feeds, ...result.feed.entry];
-                  this.setState({ feeds: feeds });
-              });
-          } else {
-              console.warn("error: " + request.status);
-          }
-      };
-
-      request.open("GET", site);
-      request.send();
-  }
-
-  /*
-   * parseRedditXML - Extract meaningful data from XML.
-   *                  Process content html into something that react native 
-   *                  can handle.
-   */
-  parseRedditXML(xml) {
-      let content = xml.content[0]["_"];
-      /*
-      content = content.substring(
-        content.lastIndexOf("<div class=\"md\">") + 16, 
-        content.lastIndexOf("</div>")
-      ); 
-      */
-      const data = {
-          author: xml.author[0].name[0],
-          title: xml.title[0],
-          link: xml.link[0].$.href,
-          content: content,
-      };
-    
-      return data;
   }
 
   /*
@@ -160,7 +127,8 @@ export default class Feed extends Component {
                   contentContainerstyle={{
                       flex: 1, 
                       flexDirection:"column", 
-                      justifyContent:"center"
+                      justifyContent:"center",
+                      alignItems: "center"
                   }}
               >
                   { this.renderBody() }          
@@ -190,8 +158,8 @@ export default class Feed extends Component {
               <Text 
                   style={{
                       flex: 1,
-                      flexDirection:"column",
-                      justifyContent: "center", 
+                      textAlignVertical: "center",
+                      textAlign: 'center',
                       color: Colors.primaryTextColor
                   }}
               >
@@ -216,6 +184,29 @@ export default class Feed extends Component {
               />
           );
       }
+  }
+
+  /*
+   * parseRedditXML - Extract meaningful data from XML.
+   *                  Process content html into something that react native 
+   *                  can handle.
+   */
+  parseRedditXML(xml) {
+      let content = xml.content[0]["_"];
+      /*
+      content = content.substring(
+        content.lastIndexOf("<div class=\"md\">") + 16, 
+        content.lastIndexOf("</div>")
+      ); 
+      */
+      const data = {
+          author: xml.author[0].name[0],
+          title: xml.title[0],
+          link: xml.link[0].$.href,
+          content: content,
+      };
+    
+      return data;
   }
 
   /*
@@ -244,6 +235,7 @@ export default class Feed extends Component {
   }
 }
 
+// TODO: extract all inline styling to here
 const styles = StyleSheet.create({
     div: {
         color: Colors.primaryTextColor

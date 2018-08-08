@@ -252,6 +252,7 @@ export default class Settings extends Component {
   }
 }
 
+// TODO: extract all inline styling to here
 const styles = StyleSheet.create({
     container: {
         flex: 1,

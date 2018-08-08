@@ -28,15 +28,23 @@ const RootStack = createStackNavigator(
 
 // Main Entry Point for App
 export default class App extends Component {
- 
-  state = {
-    RSS: []
-  };
-
-  setRSS(RSS) {
-      this.setState({RSS});
+  
+  /*
+   * constructor - set RSS in state
+   */
+  constructor(props) {
+      super(props);
+      this.state = { RSS: [] };
   }
 
+  /*
+   * setRSS - set state value RSS -- needed for child components to set State
+   */
+  setRSS = (RSS) => this.setState({ RSS: RSS });
+
+  /*
+   * componentDidMount - Load font package for native base
+   */
   async componentDidMount() {
     await Expo.Font.loadAsync({
       'Roboto': require('native-base/Fonts/Roboto.ttf'),
@@ -44,8 +52,12 @@ export default class App extends Component {
     });
   }
 
+  /*
+   * render - render jsx for app
+   *          Root needed so native base knows where to put Toast notifications
+   */
   render() {
-    const props = { setRSS: this.setRSS, RSS: this.state.RSS };
+    const props = { setRSS: this.setRSS.bind(this), RSS: this.state.RSS };
     return (
         <Root>
           <RootStack screenProps={ props } />
