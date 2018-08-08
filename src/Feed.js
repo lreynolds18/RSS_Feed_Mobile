@@ -189,11 +189,8 @@ export default class Feed extends Component {
    * renderBody - Either Generate List of RSS Feeds, Loading Spinner, or Text
    */
   renderBody() {
-      if (this.state.feeds.length === 0 && this.state.failed === false) {
-          return ( 
-              <Spinner color='gray' />
-          );
-      } else if (this.state.feeds.length === 0 && this.state.failed === true) {
+      if (this.state.failed === true) {
+          // No data in AsyncStorage
           return ( 
               <Text 
                   style={{
@@ -206,7 +203,13 @@ export default class Feed extends Component {
                   Enter some RSS feeds to get started!
               </Text>
           );
+      } else if (this.state.failed === false && this.state.feeds.length === 0) {
+          // Still trying to pull data from AsyncStorage and Fetchs
+          return ( 
+              <Spinner color='gray' />
+          );
       } else {
+          // Pulled data
           return (
               <FlatList
                   style={{flex: 1}}
