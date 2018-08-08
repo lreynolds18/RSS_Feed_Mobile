@@ -95,7 +95,7 @@ export default class Settings extends Component {
   addRSSFeed() {
       // TODO: trigger keyboard to close on button press
 
-      let re = new RegExp("[Hh]ttps?://.*(json)|(rss)");
+      let re = new RegExp("[Hh]ttps?://.*[(json)(rss)]");
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
           Toast.show({
               text: "Error: RSS feed must be a valid site",
@@ -234,8 +234,6 @@ export default class Settings extends Component {
                       justifyContent:"center",
                   }}
               >
-
-                  {/* TODO: make list take 80% of screen and buttons take 20% */}
                   {/* Generate List of RSS */}
                   <FlatList
                       style={styles.listContainer}
