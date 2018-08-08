@@ -46,20 +46,29 @@ export default class Settings extends Component {
    */
   constructor(props) {
       super(props);
-      this.state = { feeds: [], new_site: "" };
+      this.state = { new_site: "" };
   }
 
   /*
    * componentDidMount - call asyncstorage to get current feeds value
    * only calling asyncstorage on mount and update (go back)
+   *
+   * TODO: feeds in asyncstorage should actually be RSS
    */
   componentDidMount() {
+      this.getRSS();
+  }
+
+
+  /*
+   * getRSS - pull RSS feeds from AsyncStorage
+   */
+  getRSS() {
       AsyncStorage
           .getItem("feeds")
           .then((value) => {
-              console.log(value);
               if (value) {
-                  this.setState({ "feeds": JSON.parse(value) });
+                  this.props.screenProps.setRSS(JSON.parse(value));
               }
           })
           .catch((error) => {
@@ -67,10 +76,12 @@ export default class Settings extends Component {
           });
   }
 
+  /*
+   * setRSS - push RSS feeds to AsyncStorage
+   */
   setRSS() {
-      console.log("called");
       AsyncStorage
-          .setItem("feeds", JSON.stringify(this.state.feeds))
+          .setItem("feeds", JSON.stringify(this.props.screenProps.RSS))
           .catch((error) => {
               console.log(error);
           });
@@ -86,7 +97,6 @@ export default class Settings extends Component {
 
       let re = new RegExp("[Hh]ttps?://.*(json)|(rss)");
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
-          Keyboard.dismiss();
           Toast.show({
               text: "Error: RSS feed must be a valid site",
               buttonText: "OK",
@@ -95,12 +105,9 @@ export default class Settings extends Component {
               position: "bottom",
               style: { bottom: "50%" }
           });
+
+          Keyboard.dismiss();
       } else {
-          let feeds = [...this.state.feeds];
-          let new_site = this.state.new_site.toLowerCase();
-          feeds.push({on: true, site: new_site});
-          this.setState({ feeds: feeds, new_site: "" });
-          
           Toast.show({
               text: "Success! Added " + new_site,
               buttonText: "OK",
@@ -109,22 +116,27 @@ export default class Settings extends Component {
               position: "bottom",
               style: { bottom: "50%" }
           });
+
+          let RSS = [...this.props.screenProps.RSS];
+          let new_site = this.state.new_site.toLowerCase();
+          RSS.push({on: true, site: new_site});
+          this.props.screenProps.setRSS(RSS);
+          this.setState({ new_site: "" });
       }
   }
 
   /*
-   * deleteRSS - deletes item from state feeds
-   * update async every time?
+   * deleteRSS - delete item from RSS
    */
   deleteRSS(index) {
-      let feeds = [...this.state.feeds];
+      let RSS = [...this.props.screenProps.RSS];
 
       // delete element from array
       // if only one element left then initializes empty array
       // otherwise splice the element out
-      feeds.length === 1 ? feeds = [] : feeds.splice(index, 1);
+      RSS.length === 1 ? RSS = [] : RSS.splice(index, 1);
 
-      this.setState({ feeds: feeds });
+      this.props.screenProps.setRSS(RSS);
   }
 
   /*
@@ -137,11 +149,15 @@ export default class Settings extends Component {
   }
 
   /*
-   * renderActivateRSSFeed - builds JSX for the Activate RSS Feed List
-   * body is each list feed and each feed can be turned on/off
+   * renderActivateRSS - builds JSX for the Activate RSS List
+   * body is each list RSS and each RSS can be turned on/off
    * right gives option to swipe the item to open up a option to delete
+   *
+   * TODO: I want to be able to group RSS feeds together
+   * IE: JS group has some JS RSS, /r/reactjs, /r/javascript
+   * and ML group has /r/machinelearning, /r/datascience, etc...
    */
-  renderActivateRSSFeed(item, index) {
+  renderActivateRSS(item, index) {
       return (
           <SwipeRow
               style={{ backgroundColor: Colors.backgroundColor }}
@@ -183,11 +199,11 @@ export default class Settings extends Component {
                       placeholderTextColor={ Colors.primaryTextColor }
                       onChangeText={(new_site) => this.setState({new_site})}
                       value={this.state.new_site}
-                      placeholder="Type here to add new RSS feeds"
+                      placeholder="Type here to add new RSS Feed"
                   />
                   <Button success full
                       onPress={ () => this.addRSSFeed() }
-                      accessibilityLabel="Press button to add website RSS feed"
+                      accessibilityLabel="Press button to add website RSS Feed"
                   >
                       <Icon type='FontAwesome' name='plus' />
                   </Button>
@@ -220,13 +236,13 @@ export default class Settings extends Component {
               >
 
                   {/* TODO: make list take 80% of screen and buttons take 20% */}
-                  {/* Generate List of RSS Feeds */}
+                  {/* Generate List of RSS */}
                   <FlatList
                       style={styles.listContainer}
-                      data={this.state.feeds}
+                      data={this.props.screenProps.RSS}
                       keyExtractor={(item, index) => index.toString()}
                       renderItem={({ item, index }) => 
-                          this.renderActivateRSSFeed(item, index)
+                          this.renderActivateRSS(item, index)
                       }
                   />
 

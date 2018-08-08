@@ -41,7 +41,8 @@ export default class Feed extends Component {
    */
   constructor(props) {
       super(props);
-      this.state = { failed: false, RSS: [], feeds: []} ;
+      this.state = { failed: false, feeds: [] };
+      console.log("in constuctor");
   }
 
   /*
@@ -53,16 +54,16 @@ export default class Feed extends Component {
    * TODO: should this have async in front of it
    * TODO: can we handle async calls better?
    * TODO: handle json calls
+   * TODO: use async/await calls instead of promises .then
    */
   componentDidMount() {
-      // get sites to pull RSS Feed from
-      console.log("in mnt");
+      console.log("did mount"); 
       AsyncStorage.getItem("feeds")
           .then((value) => {
               this.setState({ failed: false });
               if (value !== null) {
                   value = [...JSON.parse(value)];
-                  this.setState({ "RSS": value });
+                  this.props.screenProps.setRSS(value);
           
                   value.forEach((rss) => {
                       if (rss.on) {
@@ -82,6 +83,22 @@ export default class Feed extends Component {
           });
   }
 
+  componentWillMount() {
+    console.log("will mount");
+  }
+
+  componentDidUpdate() {
+    console.log("did update");
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log("should update");
+    return true;
+  }
+
+  componentWillUnmount() {
+    console.log("unmount");
+  }
 
   /*
    * makeRSSRequest - get xml from RSS request
@@ -136,8 +153,11 @@ export default class Feed extends Component {
 
   /*
    * render - Render jsx of Feed page
+   * TODO: re-render on back and/or state change
+   *       https://www.reddit.com/r/reactnative/comments/69xm4p/react_navigation_tab_change_event/
    */
   render() {
+      console.log("render");
       return (
           <Container>
               <Content 
@@ -205,7 +225,7 @@ export default class Feed extends Component {
    */
   renderRSSFeed(item, index) {
       const data = this.parseRedditXML(item);
-      console.log(data);
+      // console.log(data);
       return (
           <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"flex-start"}}>
               <Text 

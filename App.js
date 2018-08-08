@@ -28,6 +28,13 @@ const RootStack = createStackNavigator(
 
 // Main Entry Point for App
 export default class App extends Component {
+ 
+  state = {
+    RSS: []
+  };
+
+  setRSS = (RSS) => this.setState({RSS});
+
   async componentWillMount() {
     await Expo.Font.loadAsync({
       'Roboto': require('native-base/Fonts/Roboto.ttf'),
@@ -36,9 +43,10 @@ export default class App extends Component {
   }
 
   render() {
+    const props = { setRSS: this.setRSS, RSS: this.state.RSS };
     return (
         <Root>
-          <RootStack />
+          <RootStack screenProps={ props } />
         </Root>
     );
   }
