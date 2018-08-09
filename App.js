@@ -41,14 +41,15 @@ export default class App extends Component {
   }
 
   /*
-   * 
+   * getRSS - returns RSS from state
+   *          purely define to maintain symmetry 
    */
   getRSS() {
       return this.state.RSS;
   }
 
   /*
-   * 
+   * setRSS - store RSS in state
    */
   setRSS(RSS) {
       this.setState({ RSS: RSS });
