@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { AsyncStorage } from 'react-native';
 import { createStackNavigator } from 'react-navigation';
-import { Root } from "native-base";
+import { ActionSheet, Root, Toast } from 'native-base';
 
 import FeedScreen from './src/Feed';
 import SettingsScreen from './src/Settings';
@@ -101,7 +101,7 @@ export default class App extends Component {
   }
 
   componentWillUnmount() {
-    console.log("unmounted");
+      Toast.toastInstance = null;
   }
 
   /*

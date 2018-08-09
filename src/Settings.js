@@ -67,12 +67,36 @@ export default class Settings extends Component {
   /*
    * addRSSFeed - add RSS Feed
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
-   * TODO: move success and failure around
+   *
    * TODO: Figure out why Toasts don't fire immediately
+   *       WHY OH WHY DOES TOAST NOT WORK?
+   *       It's wrapped in Root component
+   *       Debugger is off
+   *
+   * notes: - regexp only accepts https because you can't make fetch calls to 
+   *          http on ios w/o additionally libraries
    */ 
   addRSSFeed() {
-      let re = new RegExp("[Hh]ttps?://.*[(json)(rss)]");
-      if (this.state.new_site === "" || !re.test(this.state.new_site)) {
+      let re = new RegExp("^[Hh]ttps:\/\/.*((json)|(rss))$");
+      if (this.state.new_site !== "" && re.test(this.state.new_site)) {
+          // Success
+          Toast.show({
+              text: "Success! Added " + new_site,
+              buttonText: "OK",
+              type: "success",
+              duration: 1500,
+              position: "bottom",
+              style: { bottom: "50%" }
+          });
+
+          Keyboard.dismiss();
+
+          let RSS = [...this.props.screenProps.getRSS()];
+          let new_site = this.state.new_site.toLowerCase();
+          RSS.push({on: true, site: new_site});
+          this.props.screenProps.setRSS(RSS);
+          this.setState({ new_site: "" });
+      } else {
           // Failure
           Toast.show({
               text: "Error: RSS feed must be a valid site",
@@ -84,22 +108,6 @@ export default class Settings extends Component {
           });
 
           Keyboard.dismiss();
-      } else {
-          // Success
-          Toast.show({
-              text: "Success! Added " + new_site,
-              buttonText: "OK",
-              type: "success",
-              duration: 1500,
-              position: "bottom",
-              style: { bottom: "50%" }
-          });
-
-          let RSS = [...this.props.screenProps.getRSS()];
-          let new_site = this.state.new_site.toLowerCase();
-          RSS.push({on: true, site: new_site});
-          this.props.screenProps.setRSS(RSS);
-          this.setState({ new_site: "" });
       }
   }
 
