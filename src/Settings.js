@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 
 import {
-    AsyncStorage, 
     FlatList,
     Keyboard,
     StyleSheet,
@@ -52,51 +51,29 @@ export default class Settings extends Component {
   /*
    * componentDidMount - call asyncstorage to get current feeds value
    * only calling asyncstorage on mount and update (go back)
-   *
-   * TODO: feeds in asyncstorage should actually be RSS
    */
-  componentDidMount() {
-      this.getRSS();
-  }
-
-
-  /*
-   * getRSS - pull RSS feeds from AsyncStorage
-   */
-  getRSS() {
-      AsyncStorage
-          .getItem("feeds")
-          .then((value) => {
-              if (value) {
-                  this.props.screenProps.setRSS(JSON.parse(value));
-              }
-          })
-          .catch((error) => {
-              console.log(error);
-          });
+  async componentDidMount() {
+      await this.props.screenProps.getASRSS();
   }
 
   /*
-   * setRSS - push RSS feeds to AsyncStorage
+   * goBack - set RSS in AsyncStorage and return to feed page
    */
-  setRSS() {
-      AsyncStorage
-          .setItem("feeds", JSON.stringify(this.props.screenProps.RSS))
-          .catch((error) => {
-              console.log(error);
-          });
+  goBack() {
+      this.props.screenProps.setASRSS();
       this.props.navigation.navigate("Feed");
   }
 
   /*
    * addRSSFeed - add RSS Feed
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
+   * TODO: move success and failure around
+   * TODO: Figure out why Toasts don't fire immediately
    */ 
   addRSSFeed() {
-      // TODO: trigger keyboard to close on button press
-
       let re = new RegExp("[Hh]ttps?://.*[(json)(rss)]");
       if (this.state.new_site === "" || !re.test(this.state.new_site)) {
+          // Failure
           Toast.show({
               text: "Error: RSS feed must be a valid site",
               buttonText: "OK",
@@ -108,6 +85,7 @@ export default class Settings extends Component {
 
           Keyboard.dismiss();
       } else {
+          // Success
           Toast.show({
               text: "Success! Added " + new_site,
               buttonText: "OK",
@@ -117,7 +95,7 @@ export default class Settings extends Component {
               style: { bottom: "50%" }
           });
 
-          let RSS = [...this.props.screenProps.RSS];
+          let RSS = [...this.props.screenProps.getRSS()];
           let new_site = this.state.new_site.toLowerCase();
           RSS.push({on: true, site: new_site});
           this.props.screenProps.setRSS(RSS);
@@ -129,7 +107,7 @@ export default class Settings extends Component {
    * deleteRSS - delete item from RSS
    */
   deleteRSS(index) {
-      let RSS = [...this.props.screenProps.RSS];
+      let RSS = [...this.props.screenProps.getRSS()];
 
       // delete element from array
       // if only one element left then initializes empty array
@@ -143,9 +121,12 @@ export default class Settings extends Component {
    * toggleRSS - toggles if we look for RSS feed by switch
    */
   toggleRSS(index) {
-      let feeds = [...this.state.feeds];
-      feeds[index].on = !feeds[index].on;
-      this.setState({ feeds: feeds });
+      let RSS = [...this.props.screenProps.getRSS()];
+      console.log(RSS, index);
+
+      RSS[index].on = !RSS[index].on;
+
+      this.props.screenProps.setRSS(RSS);
   }
 
   /*
@@ -211,7 +192,7 @@ export default class Settings extends Component {
     
               <Item style={{borderColor: "transparent"}}>
                   <Button rounded
-                      onPress={() => this.setRSS()}
+                      onPress={() => this.goBack()}
                       style = {{ backgroundColor: "#3e3f40" }}
                       accessibilityLabel="Press button to update settings and go back."
                   >
@@ -237,9 +218,9 @@ export default class Settings extends Component {
                   {/* Generate List of RSS */}
                   <FlatList
                       style={styles.listContainer}
-                      data={this.props.screenProps.RSS}
+                      data={this.props.screenProps.getRSS()}
                       keyExtractor={(item, index) => index.toString()}
-                      renderItem={({ item, index }) => 
+                      renderItem={({item, index}) => 
                           this.renderActivateRSS(item, index)
                       }
                   />

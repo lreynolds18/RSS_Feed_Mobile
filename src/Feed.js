@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { 
-    AsyncStorage, 
     FlatList, 
     StyleSheet,
 } from "react-native";
@@ -19,8 +18,6 @@ import HTMLView from "react-native-htmlview";
 
 import Colors from "./Colors";
 
-// TODO: put asyncstorage calls in App.js
-// TODO: put xml/json calls in Feed.js
 // TODO: beautifully display text / video
 
 export default class Feed extends Component {
@@ -40,8 +37,10 @@ export default class Feed extends Component {
    */
   constructor(props) {
       super(props);
-      this.state = { failed: false, feeds: [] };
-      console.log("in constuctor");
+      this.state = { 
+        failed: false, 
+        feeds: [] 
+      };
   }
 
   componentWillMount() {
@@ -65,8 +64,8 @@ export default class Feed extends Component {
    * componentDidMount - get feeds from asyncstorage
    */
   async componentDidMount() {
-      console.log("did mount"); 
-      this.fetchData();
+      await this.props.screenProps.getASRSS();
+      await this.fetchData();
   }
 
   /* 
@@ -76,12 +75,13 @@ export default class Feed extends Component {
    * @response - either xml or json, object returned from fetch call
    * @site - hostname of site used (reddit, news.ycombinator, twitter...)
    * @type - response type either of xml or json
+   * TODO: write parsing for JSON and setState
+   * TODO: write XML/JSON parser for reddit, hackernews, twitter, etc...
    */
   parseEntries(response, site, type) {
       switch (site) {
           case "reddit":
               if (type === "xml") {
-                  console.log(response);
                   let entries = response.feed.entry;
                   entries.forEach(function(item, index, arr) {
                       /*
@@ -91,10 +91,10 @@ export default class Feed extends Component {
                       ); 
                       */
                       arr[index] = {
-                        author: item.author[0].name[0],
+                        // author: item.author[0].name[0],
                         title: item.title[0],
                         link: item.link[0].$.href,
-                        content: item.content[0]["_"],
+                        content: item.content[0]._,
                       };
                   });
                   return entries;
@@ -114,19 +114,14 @@ export default class Feed extends Component {
    *             then call makeXMLRequest or makeJSONRequest depending on ending
    * TODO: http fetchs will not work on IOS -- fix 
    *       (https://facebook.github.io/react-native/docs/network)
-   * TODO: write parsing for JSON and setState
-   * TODO: write XML/JSON parser for reddit, hackernews, twitter, etc...
    */
   async fetchData() {
       try {
-          const RSS = await AsyncStorage.getItem("feeds");
-          console.log(RSS);
+          let RSS = this.props.screenProps.getRSS();
           if (RSS !== null) {
-              RSS = [...JSON.parse(RSS)];
-              this.props.screenProps.setRSS(RSS);
-          
               RSS.forEach(async (rss) => {
                   if (rss.on) {
+                      // TODO: move to Settings.js
                       let calltype = rss.site.substring(
                         rss.site.lastIndexOf('.')+1, rss.site.length
                       );
