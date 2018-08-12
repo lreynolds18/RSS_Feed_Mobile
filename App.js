@@ -35,12 +35,10 @@ const RootStack = createStackNavigator(
 export default class App extends Component {
   
   /*
-   * constructor - set RSS in state
+   * RSS: main list of RSS feeds to display in app.  Used in Feed and Setting.
+   *      Pulled from AsyncStorage.
    */
-  constructor(props) {
-      super(props);
-      this.state = { RSS: [] };
-  }
+  state = { RSS: [] };
 
   /*
    * getRSS - returns RSS from state
@@ -52,6 +50,8 @@ export default class App extends Component {
 
   /*
    * setRSS - store RSS in state
+   *
+   * @RSS: new RSS feeds to update state with
    */
   setRSS(RSS) {
       this.setState({ RSS: RSS });
@@ -60,7 +60,7 @@ export default class App extends Component {
   /*
    * setAsyncStorageRSS - set RSS in Async Storage
    */
-  async setAsyncStorageRSS(RSS) {
+  async setAsyncStorageRSS() {
       try {
           await AsyncStorage.setItem(
             "feeds", 
@@ -102,7 +102,7 @@ export default class App extends Component {
         'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
       });
 
-      // await this.getASRSS();
+      // await this.getAsyncStorageRSS();
   }
 
   /*
@@ -114,7 +114,7 @@ export default class App extends Component {
   }
 
   /*
-   * render - render jsx for app
+   * render - Render jsx for app
    *          Root needed so native base knows where to put Toast notifications
    */
   render() {

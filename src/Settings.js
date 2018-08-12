@@ -41,12 +41,10 @@ export default class Settings extends Component {
   };
 
   /*
-   * constructor - 
+   * newRSSUrl: New RSS feed website.  Input field updates newRSSUrl on change 
+   *           and it's used in addRSS.
    */
-  constructor(props) {
-      super(props);
-      this.state = { new_site: "" };
-  }
+  state = { newRSSUrl: "" };
 
   /*
    * componentDidMount - call asyncstorage to get current feeds value
@@ -65,11 +63,10 @@ export default class Settings extends Component {
   }
 
   /*
-   * addRSSFeed - add RSS Feed
+   * addRSSFeed - add the RSS Feed in newRSSUrl
    * gets RSS Feed site from textinput, checks if valid, then pushs to state
    *
-   * TODO: Figure out why Toasts don't fire immediately
-   *       WHY OH WHY DOES TOAST NOT WORK?
+   * TODO: Figure out why Toasts don't fire / don't fire immediately
    *       It's wrapped in Root component
    *       Debugger is off
    *
@@ -78,10 +75,11 @@ export default class Settings extends Component {
    */ 
   addRSSFeed() {
       let re = new RegExp("^[Hh]ttps:\/\/.*((json)|(rss))$");
-      if (this.state.new_site !== "" && re.test(this.state.new_site)) {
+      let newRSSUrl = this.state.newRSSUrl.toLowerCase();
+      if (newRSSUrl !== "" && re.test(newRSSUrl)) {
           // Success
           Toast.show({
-              text: "Success! Added " + new_site,
+              text: "Success! Added " + newRSSUrl,
               buttonText: "OK",
               type: "success",
               duration: 1500,
@@ -92,10 +90,9 @@ export default class Settings extends Component {
           Keyboard.dismiss();
 
           let RSS = [...this.props.screenProps.getRSS()];
-          let new_site = this.state.new_site.toLowerCase();
-          RSS.push({on: true, site: new_site});
+          RSS.push({on: true, site: newRSSUrl});
           this.props.screenProps.setRSS(RSS);
-          this.setState({ new_site: "" });
+          this.setState({ newRSSUrl: "" });
       } else {
           // Failure
           Toast.show({
@@ -138,10 +135,15 @@ export default class Settings extends Component {
   }
 
   /*
-   * renderActivateRSS - builds JSX for the Activate RSS List
-   * body is each list RSS and each RSS can be turned on/off
-   * right gives option to swipe the item to open up a option to delete
+   * renderActivateRSS - Builds JSX for the Activate RSS List
+   * Body is each list RSS and each RSS can be turned on/off
+   * Right gives option to swipe the item to open up a option to delete
    *
+   * @item: Each RSS Feed to display 
+   * @index: Spot the item is in list.
+   *
+   * TODO: load slows / can't manipulate while loading
+   * TODO: delete buttons show up on switch screen (before & after)
    * TODO: I want to be able to group RSS feeds together
    * IE: JS group has some JS RSS, /r/reactjs, /r/javascript
    * and ML group has /r/machinelearning, /r/datascience, etc...
@@ -186,8 +188,8 @@ export default class Settings extends Component {
                   <Input 
                       style={{ color: Colors.primaryTextColor }}
                       placeholderTextColor={ Colors.primaryTextColor }
-                      onChangeText={(new_site) => this.setState({new_site})}
-                      value={this.state.new_site}
+                      onChangeText={(newRSSUrl) => this.setState({newRSSUrl})}
+                      value={this.state.newRSSUrl}
                       placeholder="Type here to add new RSS Feed"
                   />
                   <Button success full
@@ -212,7 +214,7 @@ export default class Settings extends Component {
   }
 
   /*
-   * render - render jsx
+   * render - Renders a list of RSS feeds and control input and buttons
    */
   render() {
       return (

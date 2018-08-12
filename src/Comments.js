@@ -32,13 +32,11 @@ export default class Comments extends Component {
   };
 
   /*
-   * constructor - 
-   * @props - props passed
+   * comments: associated comments with a particular RSS feed. Pulled from fetch call
    */
-  constructor(props) {
-     super(props);
-     this.state = { comments: [] };
-  }
+  state = {
+    comments: [],
+  };
 
   /*
    * componentDidMount - fetch comments
@@ -82,6 +80,11 @@ export default class Comments extends Component {
 
   /*
    * renderContent - Display main post content or webview of link
+   *
+   * @item: Context of main post.  Contains author, content, comments (link), link.
+   *
+   * TODO: sometimes doesn't load any content
+   * TODO: also need to fix up styling
    */
   renderContent(item) {
       if (item.comments === item.link){
@@ -118,6 +121,8 @@ export default class Comments extends Component {
 
   /*
    * renderSingleComment - Generates comment from html
+   *
+   * @item: Context of each comment.
    */
   renderSingleComment(item) {
       return (

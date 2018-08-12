@@ -34,33 +34,13 @@ export default class Feed extends Component {
   };
 
   /*
-   * constructor - 
-   * @props - 
+   * failed: TODO: remove
+   * feeds: each post/content from RSS feed. Pulled from fetch call
    */
-  constructor(props) {
-      super(props);
-      this.state = { 
-        failed: false, 
-        feeds: [] 
-      };
-  }
-
-  componentWillMount() {
-    console.log("will mount");
-  }
-
-  componentDidUpdate() {
-    console.log("did update");
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    console.log("should update");
-    return true;
-  }
-
-  componentWillUnmount() {
-    console.log("unmount");
-  }
+  state = { 
+    failed: false, 
+    feeds: [],
+  };
 
   /*
    * componentDidMount - get feeds from asyncstorage
@@ -74,11 +54,15 @@ export default class Feed extends Component {
    * parseEntries - given xml or json, 
    *                find the entries and 
    *                extract out the title, link, content, etc for each one
+   *
    * @response - either xml or json, object returned from fetch call
    * @site - hostname of site used (reddit, news.ycombinator, twitter...)
    * @type - response type either of xml or json
+   *
    * TODO: write parsing for JSON and setState
    * TODO: write XML/JSON parser for reddit, hackernews, twitter, etc...
+   * TODO: refactor code / use html parser
+   * TODO: change comments to comments_link.  Add date and points
    */
   parseEntries(response, site, type) {
       switch (site) {
@@ -87,7 +71,6 @@ export default class Feed extends Component {
                   let entries = response.feed.entry;
                   entries.forEach(function(item, index, arr) {
                       let content = item.content[0]._;
-                      // TODO: refactor later -- use html parser
                       // extract second half
                       let linkAndComments = content.substring(
                         content.lastIndexOf("<!-- SC_ON -->"), 
@@ -140,8 +123,10 @@ export default class Feed extends Component {
   /*
    * fetchData - get RSS Feeds from AsyncStorage or this.props.screenProps.RSS
    *             then call makeXMLRequest or makeJSONRequest depending on ending
-   * TODO: http fetchs will not work on IOS -- fix 
-   *       (https://facebook.github.io/react-native/docs/network)
+   *
+   * note: http fetchs will not work on IOS
+   *       https://facebook.github.io/react-native/docs/network)
+   *       We are only accepting https in Setting.js addRSS function
    */
   async fetchData() {
       try {
@@ -191,11 +176,11 @@ export default class Feed extends Component {
 
   /*
    * render - Render jsx of Feed page
+   *
    * TODO: re-render on back and/or state change
    *       https://www.reddit.com/r/reactnative/comments/69xm4p/react_navigation_tab_change_event/
    */
   render() {
-      console.log("render");
       return (
           <Container>
               <Content 
@@ -264,6 +249,9 @@ export default class Feed extends Component {
 
   /*
    * renderRSSFeed - Build each view for every link in rss
+   *
+   * @item - entry item from each post.  Contains content, link, 
+   *         comments (link to comments), author, date
    */
   renderRSSFeed(item) {
       return (
