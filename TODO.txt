@@ -1,17 +1,15 @@
-- Feed or RSS should be RSS Feed.  Feed (entry) should be entry.
+- Make fetch for json object (make fetch more robust for other sites)
+- Sort content by date or relevance
+- More styling / allow videos 
 
-- Beautifully display text / video
-- Add comments page
-- Figure out how we want to handle links to other sites (other site not being link to comments).  Should we display in app or open browser?
+- Write Tests
+
+- Feed or RSS should be RSS Feed.  Feed (entry) should be entry.
 
 - Use container component pattern - https://medium.com/@learnreact/container-components-c0e67432e005
 
 - On new load, sometimes asyncstorage doesn't have data/doesn't finish fetching and thus the program hangs on spinning circle
 - Is this a problem with expo that will go away in production version?  Does the program actually recognize when asyncstorage is empty?
-
-- Make fetch for json object (make fetch more robust for other sites)
-
-- Sort content by date or relevance
 
 - Make toast more reliable and faster
 

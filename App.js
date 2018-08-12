@@ -5,13 +5,15 @@ import { ActionSheet, Root, Toast } from 'native-base';
 
 import FeedScreen from './src/Feed';
 import SettingsScreen from './src/Settings';
+import CommentsScreen from './src/Comments';
 
 
 // Create navigator routes
 const RootStack = createStackNavigator(
   {
     Feed: FeedScreen,
-    Settings: SettingsScreen
+    Settings: SettingsScreen,
+    Comments: CommentsScreen
   },
   {
     initialRouteName: 'Feed',
@@ -71,6 +73,9 @@ export default class App extends Component {
 
   /*
    * getRSS - getRSS data from AsyncStorage or from state
+   *
+   * TODO: don't make fetch call if RSS is already full
+   * TODO: check if empty response from AsyncStorage
    */
   async getASRSS() {
       try {
@@ -78,7 +83,6 @@ export default class App extends Component {
           if (response !== null) {
               let json = JSON.parse(response);
               let RSS = Array.from(json);
-              console.log(RSS[0]);
               this.setState({ RSS: RSS });
               return RSS;
           }
@@ -112,7 +116,7 @@ export default class App extends Component {
       const props = {
           setRSS: this.setRSS.bind(this), 
           getRSS: this.getRSS.bind(this),
-          setASRSS: this.setASRSS.bind(this),
+          setASRSS: this.setASRSS.bind(this), // TODO: better variable names?
           getASRSS: this.getASRSS.bind(this),
       };
 

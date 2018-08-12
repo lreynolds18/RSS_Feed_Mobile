@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { 
     FlatList, 
     StyleSheet,
+    TouchableOpacity,
 } from "react-native";
 import {
     Container,
@@ -34,6 +35,7 @@ export default class Feed extends Component {
 
   /*
    * constructor - 
+   * @props - 
    */
   constructor(props) {
       super(props);
@@ -84,17 +86,43 @@ export default class Feed extends Component {
               if (type === "xml") {
                   let entries = response.feed.entry;
                   entries.forEach(function(item, index, arr) {
-                      /*
+                      let content = item.content[0]._;
+                      // TODO: refactor later -- use html parser
+                      // extract second half
+                      let linkAndComments = content.substring(
+                        content.lastIndexOf("<!-- SC_ON -->"), 
+                        content.length
+                      );
+
+                      // extract link and comment a href tags
+                      linkAndComments = linkAndComments.substring(
+                        linkAndComments.indexOf("<span>"),
+                        linkAndComments.lastIndexOf("</span>")
+                      );
+                  
+                      // extract link
+                      let link = linkAndComments.substring(
+                        linkAndComments.indexOf("<a href=") + 9,
+                        linkAndComments.indexOf(">[link]</a>") - 1
+                      );
+                      
+                      // extract comments
+                      let comments = linkAndComments.substring(
+                        linkAndComments.lastIndexOf("<a href=") + 9,
+                        linkAndComments.lastIndexOf(">[comments]</a>") - 1
+                      );
+
                       content = content.substring(
-                        content.lastIndexOf("<div class=\"md\">") + 16, 
-                        content.lastIndexOf("</div>")
+                        content.lastIndexOf("<!-- SC_OFF -->") + 15,
+                        content.lastIndexOf("<!-- SC_ON -->")
                       ); 
-                      */
                       arr[index] = {
                         // author: item.author[0].name[0],
                         title: item.title[0],
-                        link: item.link[0].$.href,
-                        content: item.content[0]._,
+                        // link: item.link[0].$.href,
+                        link: link,
+                        comments: comments,
+                        content: content,
                       };
                   });
                   return entries;
@@ -179,7 +207,7 @@ export default class Feed extends Component {
                       alignItems: "center"
                   }}
               >
-                  { this.renderBody() }          
+                  { this.renderBody() }
               </Content>
 
               <Fab
@@ -226,8 +254,8 @@ export default class Feed extends Component {
                   style={{flex: 1}}
                   data={this.state.feeds}
                   keyExtractor={(item, index) => index.toString()}
-                  renderItem={({ item, index }) => 
-                      this.renderRSSFeed(item, index)
+                  renderItem={({ item }) => 
+                      this.renderRSSFeed(item)
                   }
               />
           );
@@ -237,9 +265,10 @@ export default class Feed extends Component {
   /*
    * renderRSSFeed - Build each view for every link in rss
    */
-  renderRSSFeed(item, index) {
+  renderRSSFeed(item) {
       return (
           <ListItem style={{flex: 1, flexDirection:"column", justifyContent:"flex-start"}}>
+              <TouchableOpacity onPress={() => this.props.navigation.navigate("Comments", {item: item})}>
               <Text 
                   style={{
                       color: Colors.primaryTextColor, 
@@ -253,6 +282,7 @@ export default class Feed extends Component {
                   stylesheet={styles}
                   value={ item.content }
               />
+              </TouchableOpacity>
           </ListItem>
       );
   }
