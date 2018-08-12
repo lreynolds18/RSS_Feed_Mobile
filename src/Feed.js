@@ -66,7 +66,7 @@ export default class Feed extends Component {
    * componentDidMount - get feeds from asyncstorage
    */
   async componentDidMount() {
-      await this.props.screenProps.getASRSS();
+      await this.props.screenProps.getAsyncStorageRSS();
       await this.fetchData();
   }
 

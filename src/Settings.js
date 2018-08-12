@@ -53,14 +53,14 @@ export default class Settings extends Component {
    * only calling asyncstorage on mount and update (go back)
    */
   async componentDidMount() {
-      await this.props.screenProps.getASRSS();
+      await this.props.screenProps.getAsyncStorageRSS();
   }
 
   /*
    * goBack - set RSS in AsyncStorage and return to feed page
    */
   goBack() {
-      this.props.screenProps.setASRSS();
+      this.props.screenProps.setAsyncStorageRSS();
       this.props.navigation.navigate("Feed");
   }
 

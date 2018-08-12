@@ -58,9 +58,9 @@ export default class App extends Component {
   }
 
   /*
-   * setASRSS - set RSS in state and AsyncStorage
+   * setAsyncStorageRSS - set RSS in Async Storage
    */
-  async setASRSS(RSS) {
+  async setAsyncStorageRSS(RSS) {
       try {
           await AsyncStorage.setItem(
             "feeds", 
@@ -72,22 +72,23 @@ export default class App extends Component {
   }
 
   /*
-   * getRSS - getRSS data from AsyncStorage or from state
+   * getAsyncStorageRSS - get RSS data from AsyncStorage
    *
-   * TODO: don't make fetch call if RSS is already full
    * TODO: check if empty response from AsyncStorage
    */
-  async getASRSS() {
-      try {
-          const response = await AsyncStorage.getItem("feeds");
-          if (response !== null) {
-              let json = JSON.parse(response);
-              let RSS = Array.from(json);
-              this.setState({ RSS: RSS });
-              return RSS;
+  async getAsyncStorageRSS() {
+      if (this.state.RSS.length === 0) {
+          try {
+              const response = await AsyncStorage.getItem("feeds");
+              if (response !== null) {
+                  let json = JSON.parse(response);
+                  let RSS = Array.from(json);
+                  this.setState({ RSS: RSS });
+                  return RSS;
+              }
+          } catch (error) {
+              console.warn("Error fetching from AsyncStorage", error);
           }
-      } catch (error) {
-          console.warn("Error fetching from AsyncStorage", error);
       }
   }
 
@@ -104,6 +105,10 @@ export default class App extends Component {
       // await this.getASRSS();
   }
 
+  /*
+   * componentWillUnmount - Supposedly this will help toasts work 
+   *                        It doesn't
+   */
   componentWillUnmount() {
       Toast.toastInstance = null;
   }
@@ -116,8 +121,8 @@ export default class App extends Component {
       const props = {
           setRSS: this.setRSS.bind(this), 
           getRSS: this.getRSS.bind(this),
-          setASRSS: this.setASRSS.bind(this), // TODO: better variable names?
-          getASRSS: this.getASRSS.bind(this),
+          setAsyncStorageRSS: this.setAsyncStorageRSS.bind(this),
+          getAsyncStorageRSS: this.getAsyncStorageRSS.bind(this),
       };
 
       return (
